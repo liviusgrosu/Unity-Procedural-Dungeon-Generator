@@ -11,7 +11,7 @@ public class GeneratePath : MonoBehaviour
     public GameObject PlatformModel;
     public GameObject WallModel;
     public GameObject CornerModel;
-    public GameObject DebugModel;
+    public GameObject DebugModel1, DebugModel2, DebugModel3, DebugModel4;
     public float DebugScaleFactor = 1f;
 
     // The chances of the path going towards the end side
@@ -125,7 +125,7 @@ public class GeneratePath : MonoBehaviour
         RecalculatePathInformation(gridDirectionParentNode);
         // Render the path with models
         RenderPath();
-        TestWindow();
+        AddBiggerRooms();
     }
 
     void TraversePath(int previousDirection)
@@ -383,42 +383,97 @@ public class GeneratePath : MonoBehaviour
         }
     }
 
-    void TestWindow()
+    void AddBiggerRooms()
     {
         int windowH = 3;
         int windowW = 3;
 
         for(int y = 0; y < grid.EdgeSize - windowH; y += windowH)
         {
-            for(int x = 0; x < grid.EdgeSize - windowW; x += windowW)
+            for(int x = 0; x < grid.EdgeSize - windowW; x++)
             {
-                if (TestCheckIfWindowExists(x, y, windowW, windowH))
+                if (CheckIfWindowExists(x, y, windowW, windowH))
                 {
-
+                    x += windowW + 1;
                 }
             }
         }
     }
 
-    bool TestCheckIfWindowExists(int startX, int startY, int windowW, int windowH)
+    bool CheckIfWindowExists(int startX, int startY, int windowW, int windowH)
     {
+        /* 
+            Create a north, east, south, west list
+            Go through each list and add neighbouring rooms as adjacent rooms
+        */
+
+        List<(int, int)> northRooms = new List<(int, int)>();
+        List<(int, int)> eastRooms  = new List<(int, int)>();
+        List<(int, int)> westRooms  = new List<(int, int)>();
+        List<(int, int)> southRooms = new List<(int, int)>();
+        List<(int, int)> innerRooms = new List<(int, int)>();
+
         for (int localY = startY; localY < windowH + startY + 1; localY++)
         {
             for (int localX = startX; localX < windowW + startX + 1; localX++)
             {
-                //Debug.Log($"{localY}, {localX}");
                 if (grid.GridData[localY, localX] != 1)
                 {
                     return false;
                 }
+
+                
+                if (localY == startY)
+                {
+                    northRooms.Add((localY, localX));
+                }
+                else if (localY == windowH + startY)
+                {
+                    southRooms.Add((localY, localX));
+                }
+                else if (localX == startX)
+                {
+                    westRooms.Add((localY, localX));
+                }
+                else if (localX == windowW + startX)
+                {
+                    eastRooms.Add((localY, localX));
+                }
+                else 
+                {
+                    innerRooms.Add((localY, localX));
+                }
             }
         }
         // Only show the starting corner
-        GameObject marker = Instantiate(DebugModel, new Vector3(startY, 0f, startX), DebugModel.transform.rotation);
-        marker.name = $"[{startY}, {startX}] Starting Corner";
+        // GameObject marker = Instantiate(DebugModel, new Vector3(startY, 0f, startX), DebugModel.transform.rotation);
+        // marker.name = $"[{startY}, {startX}] Starting Corner";
+
+        // TEMP
+        foreach((int, int) room in northRooms)
+        {
+            Instantiate(DebugModel1, new Vector3(room.Item1, 0f, room.Item2), DebugModel1.transform.rotation);
+        }
+
+        foreach((int, int) room in eastRooms)
+        {
+            Instantiate(DebugModel2, new Vector3(room.Item1, 0f, room.Item2), DebugModel2.transform.rotation);
+        }
+
+        foreach((int, int) room in southRooms)
+        {
+            Instantiate(DebugModel3, new Vector3(room.Item1, 0f, room.Item2), DebugModel3.transform.rotation);
+        }
+
+        foreach((int, int) room in westRooms)
+        {
+            Instantiate(DebugModel4, new Vector3(room.Item1, 0f, room.Item2), DebugModel4.transform.rotation);
+        }
+
+
         return true;
     }
-    
+
     void RenderPath()
     {
         if (grid == null || gridDirectionParentNode.children.Count == 0)
