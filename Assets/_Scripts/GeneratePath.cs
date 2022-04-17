@@ -11,6 +11,7 @@ public class GeneratePath : MonoBehaviour
     public GameObject PlatformModel;
     public GameObject WallModel;
     public GameObject CornerModel;
+    public GameObject DebugModel;
     public float DebugScaleFactor = 1f;
 
     // The chances of the path going towards the end side
@@ -124,6 +125,7 @@ public class GeneratePath : MonoBehaviour
         RecalculatePathInformation(gridDirectionParentNode);
         // Render the path with models
         RenderPath();
+        TestWindow();
     }
 
     void TraversePath(int previousDirection)
@@ -380,6 +382,43 @@ public class GeneratePath : MonoBehaviour
             RecalculatePathInformation(child);
         }
     }
+
+    void TestWindow()
+    {
+        int windowH = 3;
+        int windowW = 3;
+
+        for(int y = 0; y < grid.EdgeSize - windowH; y += windowH)
+        {
+            for(int x = 0; x < grid.EdgeSize - windowW; x += windowW)
+            {
+                if (TestCheckIfWindowExists(x, y, windowW, windowH))
+                {
+
+                }
+            }
+        }
+    }
+
+    bool TestCheckIfWindowExists(int startX, int startY, int windowW, int windowH)
+    {
+        for (int localY = startY; localY < windowH + startY + 1; localY++)
+        {
+            for (int localX = startX; localX < windowW + startX + 1; localX++)
+            {
+                //Debug.Log($"{localY}, {localX}");
+                if (grid.GridData[localY, localX] != 1)
+                {
+                    return false;
+                }
+            }
+        }
+        // Only show the starting corner
+        GameObject marker = Instantiate(DebugModel, new Vector3(startY, 0f, startX), DebugModel.transform.rotation);
+        marker.name = $"[{startY}, {startX}] Starting Corner";
+        return true;
+    }
+    
     void RenderPath()
     {
         if (grid == null || gridDirectionParentNode.children.Count == 0)
