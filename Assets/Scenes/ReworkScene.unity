@@ -235,8 +235,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b944a0be596d3d441a5254ae11390c30, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gridSize: 10
-  roomsAmount: 10
+  gridSize: 30
+  roomsAmount: 30
   roomMinSize: 2
   roomMaxSize: 5
   debugRoomModel: {fileID: 4610944988909363405, guid: 71f23a8449f1b7d499e02611a01e45e8, type: 3}

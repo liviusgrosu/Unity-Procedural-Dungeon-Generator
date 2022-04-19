@@ -45,7 +45,7 @@ public class GenerateDungeon : MonoBehaviour
     {
         foreach(Room currRoom in rooms)
         {
-            Vector3 roomPosition = new Vector3(currRoom.x, 0f, currRoom.y);
+            Vector3 roomPosition = new Vector3(currRoom.x + (currRoom.width / 2f), 0f, currRoom.y + (currRoom.height / 2f));
             Vector3 roomScale = new Vector3(currRoom.width, debugRoomModel.transform.localScale.y, currRoom.height);
 
             GameObject roomInstance = Instantiate(debugRoomModel, roomPosition, Quaternion.identity);
@@ -57,10 +57,10 @@ public class GenerateDungeon : MonoBehaviour
     {
         foreach(Room currRoom in rooms)
         {
-            bool overlapsX = newRoom.x >= currRoom.x && newRoom.x < currRoom.x + currRoom.width;
-            bool overlapsY = newRoom.y >= currRoom.y && newRoom.y < currRoom.y + currRoom.height;
-
-            if (overlapsX && overlapsY)
+            bool overlap =  newRoom.x <= (currRoom.x + currRoom.width) && (newRoom.x + newRoom.width) >= currRoom.x &&
+                            newRoom.y <= (currRoom.y + currRoom.height) && (newRoom.y + newRoom.height) >= currRoom.y;
+            
+            if (overlap)
             {
                 return false;
             }
