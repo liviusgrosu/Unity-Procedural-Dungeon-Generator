@@ -283,6 +283,7 @@ MonoBehaviour:
   DebugModel2: {fileID: 7002548636637901922, guid: 4a258da202d4c234ba6990fd4d2d406b, type: 3}
   DebugModel3: {fileID: 7002548636637901922, guid: 983e9281a00917247985333ba91b1c38, type: 3}
   DebugModel4: {fileID: 7002548636637901922, guid: 0f6de1edbb339d84cb76398e2697d430, type: 3}
+  DebugModel5: {fileID: 7002548636637901922, guid: 055556598080d1646b61b55d0f490e3c, type: 3}
   DebugScaleFactor: 1
   EndDirectionFactor: 61
   OptionalRoomCoverage: 0.5
