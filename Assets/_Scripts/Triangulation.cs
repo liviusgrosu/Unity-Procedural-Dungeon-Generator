@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,6 +14,11 @@ public class Triangulation
         {
             this.x = x;
             this.y = y;
+        }
+
+        public bool Equals(Vertex other)
+        {
+            return x == other.x && y == other.y;
         }
 
         public override string ToString()
@@ -33,27 +39,26 @@ public class Triangulation
     }
 
     public class Triangle
-    {
-        public Vertex v0, v1, v2;
-        
-        public Triangle (Vertex v0, Vertex v1, Vertex v2)
+    {   
+        public Vertex a, b, c;
+
+        public Triangle (Vertex a, Vertex b, Vertex c)
         {
-            this.v0 = v0;
-            this.v1 = v1;
-            this.v2 = v2;
+            // Order these in counter clock wise
+            this.a = a;
+            this.b = b;
+            this.c = c;
         }
     }
     private List<Vertex> vertices;
-    private List<Edge> edges;
-    private List<Triangle> triangles;
-    public static event Action<Vector2> DisplayPoint;
+    private List<Triangle> triangulation;
+    public static event Action<Vertex> DisplayPoint;
     public static event Action ClearDisplayedPoints;
 
     public Triangulation(List<Vector2> pointList)
     {
         vertices = new List<Vertex>();
-        edges = new List<Edge>();
-        triangles = new List<Triangle>();
+        triangulation = new List<Triangle>();
 
         // TODO: might need to sort the vertices by the X values
 
@@ -94,24 +99,62 @@ public class Triangulation
         Vertex v1 = new Vertex(maxX + 1f, minY - 1f);
         Vertex v2 = new Vertex(maxX / 2f, maxY + 1f);
 
-        DisplayPoint?.Invoke(new Vector2(v0.x, v0.y));
-        DisplayPoint?.Invoke(new Vector2(v1.x, v1.y));
-        DisplayPoint?.Invoke(new Vector2(v2.x, v2.y));
+        DisplayPoint?.Invoke(v0);
+        DisplayPoint?.Invoke(v1);
+        DisplayPoint?.Invoke(v2);
 
         Triangle superTriangle = new Triangle(v0, v1, v2);
-        triangles.Add(superTriangle);
+        triangulation.Add(superTriangle);
 
         foreach(Vertex vertex in vertices)
         {
             List<Triangle> badTriangles = new List<Triangle>();
-            foreach(Triangle triangle in triangles)
+            foreach(Triangle triangle in triangulation)
             {
                 if (IsPointInCirlce(triangle, vertex))
                 {
                     badTriangles.Add(triangle);
-                    DisplayPoint?.Invoke(new Vector2(vertex.x, vertex.y));
-                    return;
+
+                    // Creart List of bad edges
                 }
+            }
+            List<Edge> polygon = new List<Edge>();
+            
+            foreach(Triangle triangle in badTriangles)
+            {
+                // Get all the edges of the triangle
+                List<Edge> edges = new List<Edge>();
+                edges.Add(new Edge(triangle.a, triangle.b));
+                edges.Add(new Edge(triangle.b, triangle.c));
+                edges.Add(new Edge(triangle.c, triangle.a));
+
+                foreach(Edge edge in edges)
+                {
+                    // Check if edge is shared by another bad triangle
+                    if (!CheckIfEdgeIsShared(edge, badTriangles.Except(new List<Triangle>{triangle}).ToList()))
+                    {
+                        polygon.Add(edge);
+                    }
+                }
+            }
+
+            foreach(Triangle triangle in badTriangles)
+            {
+                triangulation.Remove(triangle);
+            }
+
+            foreach(Edge edge in polygon)
+            {
+                Triangle newTriangle = new Triangle(edge.u, edge.v, vertex);
+                triangulation.Add(newTriangle);
+            }
+        }
+
+        foreach(Triangle triangle in triangulation)
+        {
+            if (CheckIfVerticesShared(triangle, superTriangle))
+            {
+                triangulation.Remove(triangle);
             }
         }
     }
@@ -120,17 +163,39 @@ public class Triangulation
     {
         // TODO: Make triangle counter-clockwise order
 
-        float ax = triangle.v0.x - vertex.x;
-        float ay = triangle.v0.y - vertex.y;
+        float ax = triangle.a.x - vertex.x;
+        float ay = triangle.a.y - vertex.y;
 
-        float bx = triangle.v1.x - vertex.x;
-        float by = triangle.v1.y - vertex.y;
+        float bx = triangle.b.x - vertex.x;
+        float by = triangle.b.y - vertex.y;
 
-        float cx = triangle.v2.x - vertex.x;
-        float cy = triangle.v2.y - vertex.y;
+        float cx = triangle.c.x - vertex.x;
+        float cy = triangle.c.y - vertex.y;
 
         return  (((ax * ax) + (ay * ay)) * ((bx * cy) - (cx * by)) -
                 ((bx * bx) + (by * by)) * ((ax * cy) - (cx * ay)) +
                 ((cx * cx) + (cy * cy)) * ((ax * by) - (by * ay))) > 0;
+    }
+
+    private bool CheckIfEdgeIsShared(Edge edge, List<Triangle> triangles)
+    {
+        foreach(Triangle triangle in triangles)
+        {
+            if (triangle.a == edge.u && triangle.b == edge.v || triangle.a == edge.v && triangle.b == edge.u ||
+                triangle.b == edge.u && triangle.c == edge.v || triangle.b == edge.v && triangle.c == edge.u ||
+                triangle.c == edge.u && triangle.a == edge.v || triangle.c == edge.v && triangle.a == edge.u)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private bool CheckIfVerticesShared(Triangle triangleA, Triangle triangleB)
+    {
+        return (triangleA.a.Equals(triangleB.a) || triangleA.a.Equals(triangleB.b) || triangleA.a.Equals(triangleB.c) ||
+                triangleA.b.Equals(triangleB.a) || triangleA.b.Equals(triangleB.b) || triangleA.b.Equals(triangleB.c) ||
+                triangleA.c.Equals(triangleB.a) || triangleA.c.Equals(triangleB.b) || triangleA.c.Equals(triangleB.c)
+                );
     }
 }

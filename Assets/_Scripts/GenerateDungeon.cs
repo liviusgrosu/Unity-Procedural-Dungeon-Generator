@@ -70,6 +70,7 @@ public class GenerateDungeon : MonoBehaviour
         }
         
         Triangulation triangulation = new Triangulation(pointList);
+        int i = 5;
     }
 
     private bool AddRoom(Room newRoom)
@@ -89,7 +90,7 @@ public class GenerateDungeon : MonoBehaviour
         return true;
     }
 
-    public void DrawDebugPoint(Vector2 input)
+    public void DrawDebugPoint(Triangulation.Vertex input)
     {
         debugPoints.Add(Instantiate(debugRoomPoint, new Vector3(input.x, 0f, input.y), Quaternion.identity));
     }
