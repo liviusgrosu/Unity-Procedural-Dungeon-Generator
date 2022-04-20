@@ -11,26 +11,32 @@ public class GenerateDungeon : MonoBehaviour
     [SerializeField] int roomsAmount;
     [SerializeField] int roomMinSize, roomMaxSize;
     [SerializeField] GameObject debugRoomModel;
-
+    [SerializeField] GameObject debugRoomPoint;
+    List<GameObject> debugPoints;
 
     private void Awake()
     {
         grid = new RoomGrid(gridSize);
         rooms = new List<Room>();
 
+        Triangulation.DisplayPoint += DrawDebugPoint;
+        Triangulation.ClearDisplayedPoints += ClearDebugPoints;
+        debugPoints = new List<GameObject>();
+
         GenerateRooms();
         RenderMap();
+        PerformDelaunayTriangulation();
     }
 
     private void GenerateRooms()
     {
         for(int i = 0; i < roomsAmount; i++)
         {
-            int newRoomSizeW = Random.Range(roomMinSize, roomMaxSize + 1);
-            int newRoomSizeH = Random.Range(roomMinSize, roomMaxSize + 1);
+            int newRoomSizeW = UnityEngine.Random.Range(roomMinSize, roomMaxSize + 1);
+            int newRoomSizeH = UnityEngine.Random.Range(roomMinSize, roomMaxSize + 1);
 
-            int newRoomX = Random.Range(0, gridSize - newRoomSizeW);
-            int newRoomY = Random.Range(0, gridSize - newRoomSizeH);
+            int newRoomX = UnityEngine.Random.Range(0, gridSize - newRoomSizeW);
+            int newRoomY = UnityEngine.Random.Range(0, gridSize - newRoomSizeH);
 
             Room newRoom = new Room(newRoomX, newRoomY, newRoomSizeW, newRoomSizeH);
 
@@ -53,6 +59,19 @@ public class GenerateDungeon : MonoBehaviour
         }
     }
 
+    private void PerformDelaunayTriangulation()
+    {
+        List<Vector2> pointList = new List<Vector2>();
+
+        foreach(Room room in rooms)
+        {
+            Vector2 middlePos = new Vector2(room.x, room.y) + (new Vector2(room.width, room.height) / 2f);
+            pointList.Add(middlePos);
+        }
+        
+        Triangulation triangulation = new Triangulation(pointList);
+    }
+
     private bool AddRoom(Room newRoom)
     {
         foreach(Room currRoom in rooms)
@@ -68,5 +87,22 @@ public class GenerateDungeon : MonoBehaviour
 
         rooms.Add(newRoom);
         return true;
+    }
+
+    public void DrawDebugPoint(Vector2 input)
+    {
+        debugPoints.Add(Instantiate(debugRoomPoint, new Vector3(input.x, 0f, input.y), Quaternion.identity));
+    }
+
+    public void ClearDebugPoints()
+    {
+        if (debugPoints.Count != 0)
+        {
+            foreach(GameObject point in debugPoints)
+            {
+                Destroy(point);
+            }
+            debugPoints.Clear();
+        }
     }
 }
