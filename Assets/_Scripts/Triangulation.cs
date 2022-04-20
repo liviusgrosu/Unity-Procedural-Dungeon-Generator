@@ -45,13 +45,12 @@ public class Triangulation
         public Triangle (Vertex a, Vertex b, Vertex c)
         {
             // Order these in counter clock wise
-            this.a = a;
-            this.b = b;
-            this.c = c;
+            (this.a, this.b, this.c) = SortVertices(a, b, c);
         }
     }
     private List<Vertex> vertices;
     private List<Triangle> triangulation;
+    public List<Triangle> result;
     public static event Action<Vertex> DisplayPoint;
     public static event Action ClearDisplayedPoints;
 
@@ -59,6 +58,7 @@ public class Triangulation
     {
         vertices = new List<Vertex>();
         triangulation = new List<Triangle>();
+        result = new List<Triangle>();
 
         // TODO: might need to sort the vertices by the X values
 
@@ -95,15 +95,16 @@ public class Triangulation
             }
         }
         
-        Vertex v0 = new Vertex(minX - 1f, minY - 1f);
-        Vertex v1 = new Vertex(maxX + 1f, minY - 1f);
-        Vertex v2 = new Vertex(maxX / 2f, maxY + 1f);
+        Vertex v0 = new Vertex(minX - 100f, minY - 100f);
+        Vertex v1 = new Vertex(maxX + 100f, minY - 100f);
+        Vertex v2 = new Vertex(maxX / 2f, maxY + 100f);
 
         DisplayPoint?.Invoke(v0);
         DisplayPoint?.Invoke(v1);
         DisplayPoint?.Invoke(v2);
 
         Triangle superTriangle = new Triangle(v0, v1, v2);
+        
         triangulation.Add(superTriangle);
 
         foreach(Vertex vertex in vertices)
@@ -152,9 +153,9 @@ public class Triangulation
 
         foreach(Triangle triangle in triangulation)
         {
-            if (CheckIfVerticesShared(triangle, superTriangle))
+            if (!CheckIfVerticesShared(triangle, superTriangle))
             {
-                triangulation.Remove(triangle);
+                result.Add(triangle);
             }
         }
     }
@@ -197,5 +198,48 @@ public class Triangulation
                 triangleA.b.Equals(triangleB.a) || triangleA.b.Equals(triangleB.b) || triangleA.b.Equals(triangleB.c) ||
                 triangleA.c.Equals(triangleB.a) || triangleA.c.Equals(triangleB.b) || triangleA.c.Equals(triangleB.c)
                 );
+    }
+
+    private static Vertex FindCenteroid(Vertex a, Vertex b, Vertex c)
+    {
+        float x = 0;
+        float y = 0;
+
+        x = (a.x + b.x + c.x) / 3f;
+        y = (a.y + b.y + c.y) / 3f;
+
+        return new Vertex(x, y); 
+    }
+
+    public static (Vertex, Vertex, Vertex) SortVertices(Vertex a, Vertex b, Vertex c)
+    {
+        List<Vertex> newVertices = new List<Vertex> { a, b, c };
+        Vertex centre = FindCenteroid(a, b, c);        
+
+        Dictionary<Vertex, int> vertexAngle = new Dictionary<Vertex, int>();
+
+        for(int i = 0; i < newVertices.Count(); i++)
+        {
+            int angleMax = 0;
+            for(int j = 0; j < newVertices.Count(); j++)
+            {
+                if (i == j)
+                {
+                    continue;
+                }
+                // Get the angle between the vertex and centre
+                float a1 = ((Mathf.Rad2Deg * Mathf.Atan2( newVertices[i].x - centre.x, newVertices[i].y - centre.y )) + 360) % 360;
+                float a2 = ((Mathf.Rad2Deg * Mathf.Atan2( newVertices[j].x - centre.x, newVertices[j].y - centre.y )) + 360) % 360;
+                int angleResult = (int)(a1 - a2);
+                if (angleResult > angleMax)
+                {
+                    angleMax = angleResult;
+                }
+            }
+            vertexAngle.Add(newVertices[i], angleMax);
+        }
+
+        Dictionary<Vertex, int> sortedAngles = vertexAngle.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
+        return (sortedAngles.ElementAt(0).Key, sortedAngles.ElementAt(1).Key, sortedAngles.ElementAt(1).Key);
     }
 }

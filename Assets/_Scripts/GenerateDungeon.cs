@@ -13,6 +13,7 @@ public class GenerateDungeon : MonoBehaviour
     [SerializeField] GameObject debugRoomModel;
     [SerializeField] GameObject debugRoomPoint;
     List<GameObject> debugPoints;
+    Triangulation triangulation;
 
     private void Awake()
     {
@@ -69,8 +70,24 @@ public class GenerateDungeon : MonoBehaviour
             pointList.Add(middlePos);
         }
         
-        Triangulation triangulation = new Triangulation(pointList);
-        int i = 5;
+        triangulation = new Triangulation(pointList);
+    }
+
+    private void Update()
+    {
+        if (triangulation.result.Count != 0)
+        {
+            foreach(Triangulation.Triangle triangle in triangulation.result)
+            {
+                Vector3 pointA = new Vector3(triangle.a.x, 0f, triangle.a.y);
+                Vector3 pointB = new Vector3(triangle.b.x, 0f, triangle.b.y);
+                Vector3 pointC = new Vector3(triangle.c.x, 0f, triangle.c.y);
+
+                Debug.DrawLine(pointA, pointB, Color.green);
+                Debug.DrawLine(pointB, pointC, Color.green);
+                Debug.DrawLine(pointC, pointA, Color.green);
+            }
+        }
     }
 
     private bool AddRoom(Room newRoom)
