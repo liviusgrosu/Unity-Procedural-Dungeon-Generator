@@ -5,7 +5,6 @@ using UnityEngine;
 public class DebugVisualization : MonoBehaviour
 {
     private GenerateDungeon generateDungeon;
-
     private bool startedShowingEdges;
     private List<Triangulation.Edge> edgesToDraw;
     private Triangulation.Edge latestEdgeToDraw;
@@ -24,6 +23,17 @@ public class DebugVisualization : MonoBehaviour
             {
                 startedShowingEdges = true;
                 StartCoroutine(StartShowingEdges());
+            }
+        }
+
+        if (generateDungeon.mst.lowestCostPath != null)
+        {
+            foreach(MST.Path path in generateDungeon.mst.lowestCostPath)
+            {
+                Vector3 pointA = new Vector3(path.a.vertex.x, 0f, path.a.vertex.y);
+                Vector3 pointB = new Vector3(path.b.vertex.x, 0f, path.b.vertex.y);
+
+                Debug.DrawLine(pointA, pointB, Color.green);
             }
         }
 
