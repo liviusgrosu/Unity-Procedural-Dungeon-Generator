@@ -48,7 +48,7 @@ public class Triangulation
             (this.a, this.b, this.c) = SortVertices(a, b, c);
         }
     }
-    private List<Vertex> vertices;
+    public List<Vertex> vertices;
     public List<Edge> allEdges;
     private List<Triangle> triangulation;
     public List<Triangle> finishedTriangulation;

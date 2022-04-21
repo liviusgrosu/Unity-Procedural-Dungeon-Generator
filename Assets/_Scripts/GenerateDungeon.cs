@@ -12,6 +12,7 @@ public class GenerateDungeon : MonoBehaviour
     [SerializeField] int roomMinSize, roomMaxSize;
     [SerializeField] GameObject debugRoomModel;
     public Triangulation triangulation;
+    public MST mst;
 
     private void Awake()
     {
@@ -19,7 +20,6 @@ public class GenerateDungeon : MonoBehaviour
         rooms = new List<Room>();
 
         GenerateRooms();
-        PerformDelaunayTriangulation();
         GenerateHallways();
         RenderMap();
     }
@@ -68,9 +68,15 @@ public class GenerateDungeon : MonoBehaviour
         triangulation = new Triangulation(pointList);
     }
 
+    private void PerformMST()
+    {
+        mst = new MST(triangulation.vertices, triangulation.allEdges);
+    }
+
     private void GenerateHallways()
     {
-        
+        PerformDelaunayTriangulation();
+        PerformMST();
     }
 
     private bool AddRoom(Room newRoom)
