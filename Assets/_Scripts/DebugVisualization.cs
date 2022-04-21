@@ -11,29 +11,31 @@ public class DebugVisualization : MonoBehaviour
     private void Awake()
     {
         generateDungeon = GetComponent<GenerateDungeon>();
+        showResultingPath = true;
+        showPathsBuffer = true;
     }
 
     private void Update()
     {
-        // if (generateDungeon.triangulation.allEdges != null)
-        // {
-        //     foreach(Triangulation.Edge edge in generateDungeon.triangulation.allEdges)
-        //     {
-        //         Vector3 pointA = new Vector3(edge.u.x, 0f, edge.u.y);
-        //         Vector3 pointB = new Vector3(edge.v.x, 0f, edge.v.y);
-
-        //         Debug.DrawLine(pointA, pointB, Color.gray);
-        //     }
-        // }
+        if (Input.GetKeyDown(KeyCode.Alpha2))
+        {
+            showPathsBuffer = !showPathsBuffer;
+        }
 
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             showResultingPath = !showResultingPath;
         }
 
-        if (Input.GetKeyDown(KeyCode.Alpha2))
+        if (showPathsBuffer && generateDungeon.mst.pathsBuffer != null)
         {
-            showPathsBuffer = !showPathsBuffer;
+            foreach(MST.Path path in generateDungeon.mst.pathsBuffer)
+            {
+                Vector3 pointA = new Vector3(path.a.vertex.x, 0f, path.a.vertex.y);
+                Vector3 pointB = new Vector3(path.b.vertex.x, 0f, path.b.vertex.y);
+
+                Debug.DrawLine(pointA, pointB, Color.gray);
+            }
         }
 
         if (showResultingPath && generateDungeon.mst.resultingPath != null)
@@ -47,15 +49,5 @@ public class DebugVisualization : MonoBehaviour
             }
         }
 
-        if (showPathsBuffer && generateDungeon.mst.pathsBuffer != null)
-        {
-            foreach(MST.Path path in generateDungeon.mst.pathsBuffer)
-            {
-                Vector3 pointA = new Vector3(path.a.vertex.x, 0f, path.a.vertex.y);
-                Vector3 pointB = new Vector3(path.b.vertex.x, 0f, path.b.vertex.y);
-
-                Debug.DrawLine(pointA, pointB, Color.gray);
-            }
-        }
     }
 }

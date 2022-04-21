@@ -49,7 +49,7 @@ public class MST
     public List<Path> resultingPath;
 
 
-    public MST(List<Triangulation.Vertex> vertices, List<Triangulation.Edge> edges)
+    public MST(List<Triangulation.Vertex> vertices, List<Triangulation.Edge> edges, float randomHallwayChance)
     {
         points = new List<Point>();
         visitedPoints = new List<Point>();
@@ -61,7 +61,7 @@ public class MST
         visitedPoints.Add(points[0]);
         // Start calculating the DMT
         TraversePath();
-        AddRandomPaths();
+        AddRandomPaths(randomHallwayChance);
     }
 
     private void CreateGraph(List<Triangulation.Vertex> vertices, List<Triangulation.Edge> edges)
@@ -110,9 +110,16 @@ public class MST
         }
     }
 
-    private void AddRandomPaths()
+    private void AddRandomPaths(float randomHallwayChance)
     {
-
+        foreach(Path path in pathsBuffer)
+        {
+            bool addPath = Random.Range(0.0f, 1.0f) > 1 - randomHallwayChance;
+            if (addPath)
+            {
+                resultingPath.Add(path);
+            }
+        }
     }
 
     private (Point, float) FindLowestPathOfPoint(Point point)

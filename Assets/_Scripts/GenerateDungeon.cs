@@ -10,6 +10,8 @@ public class GenerateDungeon : MonoBehaviour
     [SerializeField] int gridSize;
     [SerializeField] int roomsAmount;
     [SerializeField] int roomMinSize, roomMaxSize;
+    [Range(0.0f, 1.0f)]
+    [SerializeField] float randomHallwayChance;
     [SerializeField] GameObject debugRoomModel;
     public Triangulation triangulation;
     public MST mst;
@@ -70,7 +72,7 @@ public class GenerateDungeon : MonoBehaviour
 
     private void PerformMST()
     {
-        mst = new MST(triangulation.vertices, triangulation.allEdges);
+        mst = new MST(triangulation.vertices, triangulation.allEdges, randomHallwayChance);
     }
 
     private void GenerateHallways()
