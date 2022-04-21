@@ -20,6 +20,11 @@ public class MST
             this.vertex = vertex;
             connectingPoints = new Dictionary<Triangulation.Vertex, float>();
         }
+
+        public bool Equals(Point otherPoint)
+        {
+            return vertex.x == otherPoint.vertex.x && vertex.y == otherPoint.vertex.y;
+        }
     }
 
     public class Path
@@ -31,27 +36,32 @@ public class MST
             this.a = a;
             this.b = b;
         }
+
+        public bool Equals(Path otherPath)
+        {
+            return a.Equals(otherPath.a) && b.Equals(otherPath.b) || a.Equals(otherPath.b) && b.Equals(otherPath.a);
+        }
     }
 
     private List<Point> points;
     private List<Point> visitedPoints;
-    public List<Path> lowestCostPath;
+    public List<Path> pathsBuffer;
+    public List<Path> resultingPath;
+
 
     public MST(List<Triangulation.Vertex> vertices, List<Triangulation.Edge> edges)
     {
         points = new List<Point>();
         visitedPoints = new List<Point>();
-        lowestCostPath = new List<Path>();
+        pathsBuffer = new List<Path>();
+        resultingPath = new List<Path>();
         // Need edges and vertices
         CreateGraph(vertices, edges);
-        
-        
-        // Start calculating the DMT
-
         // Add the first point to the visited nodes
         visitedPoints.Add(points[0]);
+        // Start calculating the DMT
         TraversePath();
-        int i = 6;
+        AddRandomPaths();
     }
 
     private void CreateGraph(List<Triangulation.Vertex> vertices, List<Triangulation.Edge> edges)
@@ -92,14 +102,22 @@ public class MST
             {
                 // Add the lowest costed point to the visited list
                 visitedPoints.Add(lowestCostPoint);
+                Path newPath = new Path(parentPointToLowest, lowestCostPoint);
                 // Capture the path between the lowest cost and the point next to it
-                lowestCostPath.Add(new Path(parentPointToLowest, lowestCostPoint));
+                resultingPath.Add(newPath);
+                RemoveFromPathBuffer(newPath);
             }
         }
     }
 
+    private void AddRandomPaths()
+    {
+
+    }
+
     private (Point, float) FindLowestPathOfPoint(Point point)
     {
+        // Find the lowest costing path to take from a point
         Point nextPoint = new Point();
         float lowestCost = Mathf.Infinity;
 
@@ -112,6 +130,7 @@ public class MST
                 continue;
             }
 
+            // If the current path has a lower casting cost then its currently the lowest costing path
             if (lowestCost > connectingPoint.Value)
             {
                 lowestCost = connectingPoint.Value;
@@ -123,6 +142,7 @@ public class MST
 
     private void FindAllEdgesConnected(Point point, List<Triangulation.Edge> edges)
     {        
+        // Get all points that connected to the current point
         foreach(Triangulation.Edge edge in edges)
         {            
             Triangulation.Vertex connectingPoint;
@@ -142,6 +162,7 @@ public class MST
             
             float distanceCost = Vector2.Distance(new Vector2(point.vertex.x, point.vertex.y), new Vector2(connectingPoint.x, connectingPoint.y));
             point.connectingPoints.Add(connectingPoint, distanceCost);
+            AddPathToBuffer(point, new Point(connectingPoint));
         }
     }
 
@@ -155,5 +176,30 @@ public class MST
             }
         }
         return null;
+    }
+
+    private void AddPathToBuffer(Point a, Point b)
+    {
+        foreach(Path path in pathsBuffer)
+        {
+            if (path.a.Equals(a) && path.b.Equals(b) ||
+                path.a.Equals(b) && path.b.Equals(a))
+            {
+                return;
+            }
+        }
+        pathsBuffer.Add(new Path(a, b));
+    }
+
+    private void RemoveFromPathBuffer(Path pathToRemove)
+    {
+        foreach(Path path in pathsBuffer)
+        {
+            if (path.Equals(pathToRemove))
+            {
+                pathsBuffer.Remove(path);
+                return; 
+            }
+        }
     }
 }

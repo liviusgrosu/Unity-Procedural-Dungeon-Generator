@@ -5,30 +5,40 @@ using UnityEngine;
 public class DebugVisualization : MonoBehaviour
 {
     private GenerateDungeon generateDungeon;
-    private bool startedShowingEdges;
-    private List<Triangulation.Edge> edgesToDraw;
-    private Triangulation.Edge latestEdgeToDraw;
+
+    private bool showResultingPath, showPathsBuffer;
 
     private void Awake()
     {
         generateDungeon = GetComponent<GenerateDungeon>();
-        edgesToDraw = new List<Triangulation.Edge>();
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.Space) && !startedShowingEdges)
+        // if (generateDungeon.triangulation.allEdges != null)
+        // {
+        //     foreach(Triangulation.Edge edge in generateDungeon.triangulation.allEdges)
+        //     {
+        //         Vector3 pointA = new Vector3(edge.u.x, 0f, edge.u.y);
+        //         Vector3 pointB = new Vector3(edge.v.x, 0f, edge.v.y);
+
+        //         Debug.DrawLine(pointA, pointB, Color.gray);
+        //     }
+        // }
+
+        if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            if (generateDungeon.triangulation.finishedTriangulation.Count != 0)
-            {
-                startedShowingEdges = true;
-                StartCoroutine(StartShowingEdges());
-            }
+            showResultingPath = !showResultingPath;
         }
 
-        if (generateDungeon.mst.lowestCostPath != null)
+        if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            foreach(MST.Path path in generateDungeon.mst.lowestCostPath)
+            showPathsBuffer = !showPathsBuffer;
+        }
+
+        if (showResultingPath && generateDungeon.mst.resultingPath != null)
+        {
+            foreach(MST.Path path in generateDungeon.mst.resultingPath)
             {
                 Vector3 pointA = new Vector3(path.a.vertex.x, 0f, path.a.vertex.y);
                 Vector3 pointB = new Vector3(path.b.vertex.x, 0f, path.b.vertex.y);
@@ -37,29 +47,15 @@ public class DebugVisualization : MonoBehaviour
             }
         }
 
-        if (latestEdgeToDraw != null)
+        if (showPathsBuffer && generateDungeon.mst.pathsBuffer != null)
         {
-            foreach(Triangulation.Edge edge in edgesToDraw)
+            foreach(MST.Path path in generateDungeon.mst.pathsBuffer)
             {
-                Vector3 pointA = new Vector3(edge.u.x, 0f, edge.u.y);
-                Vector3 pointB = new Vector3(edge.v.x, 0f, edge.v.y);
+                Vector3 pointA = new Vector3(path.a.vertex.x, 0f, path.a.vertex.y);
+                Vector3 pointB = new Vector3(path.b.vertex.x, 0f, path.b.vertex.y);
 
-                Debug.DrawLine(pointA, pointB, Color.green);
+                Debug.DrawLine(pointA, pointB, Color.gray);
             }
-
-            Vector3 pointD = new Vector3(latestEdgeToDraw.u.x, 0f, latestEdgeToDraw.u.y);
-            Vector3 pointE = new Vector3(latestEdgeToDraw.v.x, 0f, latestEdgeToDraw.v.y);
-            Debug.DrawLine(pointD, pointE, Color.red);
-        }
-    }
-
-    IEnumerator StartShowingEdges()
-    {
-        foreach (Triangulation.Edge edge in generateDungeon.triangulation.allEdges)
-        {
-            latestEdgeToDraw = edge;
-            yield return new WaitForSeconds(0.25f);
-            edgesToDraw.Add(latestEdgeToDraw);
         }
     }
 }
