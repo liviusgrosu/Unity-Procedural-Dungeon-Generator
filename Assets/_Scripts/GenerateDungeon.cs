@@ -11,22 +11,17 @@ public class GenerateDungeon : MonoBehaviour
     [SerializeField] int roomsAmount;
     [SerializeField] int roomMinSize, roomMaxSize;
     [SerializeField] GameObject debugRoomModel;
-    [SerializeField] GameObject debugRoomPoint;
-    List<GameObject> debugPoints;
-    Triangulation triangulation;
+    public Triangulation triangulation;
 
     private void Awake()
     {
         grid = new RoomGrid(gridSize);
         rooms = new List<Room>();
 
-        Triangulation.DisplayPoint += DrawDebugPoint;
-        Triangulation.ClearDisplayedPoints += ClearDebugPoints;
-        debugPoints = new List<GameObject>();
-
         GenerateRooms();
-        RenderMap();
         PerformDelaunayTriangulation();
+        GenerateHallways();
+        RenderMap();
     }
 
     private void GenerateRooms()
@@ -73,21 +68,9 @@ public class GenerateDungeon : MonoBehaviour
         triangulation = new Triangulation(pointList);
     }
 
-    private void Update()
+    private void GenerateHallways()
     {
-        if (triangulation.result.Count != 0)
-        {
-            foreach(Triangulation.Triangle triangle in triangulation.result)
-            {
-                Vector3 pointA = new Vector3(triangle.a.x, 0f, triangle.a.y);
-                Vector3 pointB = new Vector3(triangle.b.x, 0f, triangle.b.y);
-                Vector3 pointC = new Vector3(triangle.c.x, 0f, triangle.c.y);
-
-                Debug.DrawLine(pointA, pointB, Color.green);
-                Debug.DrawLine(pointB, pointC, Color.green);
-                Debug.DrawLine(pointC, pointA, Color.green);
-            }
-        }
+        
     }
 
     private bool AddRoom(Room newRoom)
@@ -105,22 +88,5 @@ public class GenerateDungeon : MonoBehaviour
 
         rooms.Add(newRoom);
         return true;
-    }
-
-    public void DrawDebugPoint(Triangulation.Vertex input)
-    {
-        debugPoints.Add(Instantiate(debugRoomPoint, new Vector3(input.x, 0f, input.y), Quaternion.identity));
-    }
-
-    public void ClearDebugPoints()
-    {
-        if (debugPoints.Count != 0)
-        {
-            foreach(GameObject point in debugPoints)
-            {
-                Destroy(point);
-            }
-            debugPoints.Clear();
-        }
     }
 }

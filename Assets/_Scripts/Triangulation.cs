@@ -49,10 +49,9 @@ public class Triangulation
         }
     }
     private List<Vertex> vertices;
+    public List<Edge> edges;
     private List<Triangle> triangulation;
     public List<Triangle> result;
-    public static event Action<Vertex> DisplayPoint;
-    public static event Action ClearDisplayedPoints;
 
     public Triangulation(List<Vector2> pointList)
     {
@@ -98,10 +97,6 @@ public class Triangulation
         Vertex v0 = new Vertex(minX - 100f, minY - 100f);
         Vertex v1 = new Vertex(maxX + 100f, minY - 100f);
         Vertex v2 = new Vertex(maxX / 2f, maxY + 100f);
-
-        DisplayPoint?.Invoke(v0);
-        DisplayPoint?.Invoke(v1);
-        DisplayPoint?.Invoke(v2);
 
         Triangle superTriangle = new Triangle(v0, v1, v2);
         
@@ -158,6 +153,8 @@ public class Triangulation
                 result.Add(triangle);
             }
         }
+
+        RemoveOverlappingEdges();
     }
 
     private bool IsPointInCirlce(Triangle triangle, Vertex vertex)
@@ -239,5 +236,18 @@ public class Triangulation
 
         Dictionary<Vertex, int> sortedAngles = vertexAngle.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
         return (sortedAngles.ElementAt(0).Key, sortedAngles.ElementAt(1).Key, sortedAngles.ElementAt(2).Key);
+    }
+
+    private void RemoveOverlappingEdges()
+    {
+        edges = new List<Edge>();
+        foreach(Triangle triangle in triangulation)
+        {
+            edges.Add(new Edge(triangle.a, triangle.b));
+            edges.Add(new Edge(triangle.b, triangle.c));
+            edges.Add(new Edge(triangle.c, triangle.a));
+        }
+
+        edges = edges.Distinct().ToList();
     }
 }
