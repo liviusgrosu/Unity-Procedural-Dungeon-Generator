@@ -162,8 +162,6 @@ public class Triangulation
 
     private bool IsPointInCirlce(Triangle triangle, Vertex vertex)
     {
-        // TODO: Make triangle counter-clockwise order
-
         float ax = triangle.a.x - vertex.x;
         float ay = triangle.a.y - vertex.y;
 
@@ -173,9 +171,9 @@ public class Triangulation
         float cx = triangle.c.x - vertex.x;
         float cy = triangle.c.y - vertex.y;
 
-        return  (((ax * ax) + (ay * ay)) * ((bx * cy) - (cx * by)) -
-                ((bx * bx) + (by * by)) * ((ax * cy) - (cx * ay)) +
-                ((cx * cx) + (cy * cy)) * ((ax * by) - (by * ay))) > 0;
+        return  ((ax * ax + ay * ay) * (bx * cy - cx * by) -
+                (bx * bx + by * by) * (ax * cy - cx * ay) +
+                (cx * cx + cy * cy) * (ax * by - bx * ay)) > 0;
     }
 
     private bool CheckIfEdgeIsShared(Edge edge, List<Triangle> triangles)
@@ -240,6 +238,6 @@ public class Triangulation
         }
 
         Dictionary<Vertex, int> sortedAngles = vertexAngle.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
-        return (sortedAngles.ElementAt(0).Key, sortedAngles.ElementAt(1).Key, sortedAngles.ElementAt(1).Key);
+        return (sortedAngles.ElementAt(0).Key, sortedAngles.ElementAt(1).Key, sortedAngles.ElementAt(2).Key);
     }
 }
