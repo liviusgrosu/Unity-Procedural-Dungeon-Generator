@@ -16,12 +16,13 @@ public class DebugVisualization : MonoBehaviour
         edgesToDraw = new List<Triangulation.Edge>();
     }
 
-    private void FixedUpdate()
+    private void Update()
     {
         if (Input.GetKeyDown(KeyCode.Space) && !startedShowingEdges)
         {
-            if (generateDungeon.triangulation.result.Count != 0)
+            if (generateDungeon.triangulation.finishedTriangulation.Count != 0)
             {
+                startedShowingEdges = true;
                 StartCoroutine(StartShowingEdges());
             }
         }
@@ -44,10 +45,10 @@ public class DebugVisualization : MonoBehaviour
 
     IEnumerator StartShowingEdges()
     {
-        foreach (Triangulation.Edge edge in generateDungeon.triangulation.edges)
+        foreach (Triangulation.Edge edge in generateDungeon.triangulation.allEdges)
         {
             latestEdgeToDraw = edge;
-            yield return new WaitForSeconds(0.5f);
+            yield return new WaitForSeconds(0.25f);
             edgesToDraw.Add(latestEdgeToDraw);
         }
     }

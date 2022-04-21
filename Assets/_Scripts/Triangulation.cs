@@ -49,15 +49,16 @@ public class Triangulation
         }
     }
     private List<Vertex> vertices;
-    public List<Edge> edges;
+    public List<Edge> allEdges;
     private List<Triangle> triangulation;
-    public List<Triangle> result;
+    public List<Triangle> finishedTriangulation;
 
     public Triangulation(List<Vector2> pointList)
     {
         vertices = new List<Vertex>();
         triangulation = new List<Triangle>();
-        result = new List<Triangle>();
+        finishedTriangulation = new List<Triangle>();
+        allEdges = new List<Edge>();
 
         // TODO: might need to sort the vertices by the X values
 
@@ -150,7 +151,7 @@ public class Triangulation
         {
             if (!CheckIfVerticesShared(triangle, superTriangle))
             {
-                result.Add(triangle);
+                finishedTriangulation.Add(triangle);
             }
         }
 
@@ -180,6 +181,21 @@ public class Triangulation
             if (triangle.a == edge.u && triangle.b == edge.v || triangle.a == edge.v && triangle.b == edge.u ||
                 triangle.b == edge.u && triangle.c == edge.v || triangle.b == edge.v && triangle.c == edge.u ||
                 triangle.c == edge.u && triangle.a == edge.v || triangle.c == edge.v && triangle.a == edge.u)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private bool CheckIfEdgeIsShared(Edge edge)
+    {
+        foreach(Edge currEdge in allEdges)
+        {
+            if ((edge.u.x == currEdge.u.x && edge.u.y == currEdge.u.y &&
+                edge.v.x == currEdge.v.x && edge.v.y == currEdge.v.y) ||
+                (edge.u.x == currEdge.v.x && edge.u.y == currEdge.v.y &&
+                edge.v.x == currEdge.u.x && edge.v.y == currEdge.u.y))
             {
                 return true;
             }
@@ -240,14 +256,26 @@ public class Triangulation
 
     private void RemoveOverlappingEdges()
     {
-        edges = new List<Edge>();
-        foreach(Triangle triangle in triangulation)
+        foreach(Triangle triangle in finishedTriangulation)
         {
-            edges.Add(new Edge(triangle.a, triangle.b));
-            edges.Add(new Edge(triangle.b, triangle.c));
-            edges.Add(new Edge(triangle.c, triangle.a));
-        }
+            Edge ab = new Edge(triangle.a, triangle.b);
+            Edge bc = new Edge(triangle.b, triangle.c);
+            Edge ca = new Edge(triangle.c, triangle.a);
 
-        edges = edges.Distinct().ToList();
+            if (!CheckIfEdgeIsShared(ab))
+            {
+                allEdges.Add(ab);
+            }
+
+            if (!CheckIfEdgeIsShared(bc))
+            {
+                allEdges.Add(bc);
+            }
+
+            if (!CheckIfEdgeIsShared(ca))
+            {
+                allEdges.Add(ca);
+            }
+        }
     }
 }

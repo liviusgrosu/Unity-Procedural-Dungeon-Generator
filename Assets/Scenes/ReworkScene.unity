@@ -216,6 +216,7 @@ GameObject:
   m_Component:
   - component: {fileID: 267504678}
   - component: {fileID: 267504677}
+  - component: {fileID: 267504679}
   m_Layer: 0
   m_Name: Map Generator
   m_TagString: Untagged
@@ -236,11 +237,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   gridSize: 30
-  roomsAmount: 30
-  roomMinSize: 2
+  roomsAmount: 23
+  roomMinSize: 1
   roomMaxSize: 5
   debugRoomModel: {fileID: 4610944988909363405, guid: 71f23a8449f1b7d499e02611a01e45e8, type: 3}
-  debugRoomPoint: {fileID: 1838176777880833512, guid: 0f8192f20eb114e4a975499ce41a9fa6, type: 3}
 --- !u!4 &267504678
 Transform:
   m_ObjectHideFlags: 0
@@ -255,6 +255,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &267504679
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 267504676}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 58687cd9fc98ebf4599457ce4ebcc508, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1633365127
 GameObject:
   m_ObjectHideFlags: 0
