@@ -15,6 +15,7 @@ public class GenerateDungeon : MonoBehaviour
     [SerializeField] GameObject debugRoomModel;
     public Triangulation triangulation;
     public MST mst;
+    public AStar aStar;
 
     private void Awake()
     {
@@ -32,6 +33,17 @@ public class GenerateDungeon : MonoBehaviour
         {
             int newRoomSizeW = UnityEngine.Random.Range(roomMinSize, roomMaxSize + 1);
             int newRoomSizeH = UnityEngine.Random.Range(roomMinSize, roomMaxSize + 1);
+
+            // Ensure that room is always an even number
+            if (newRoomSizeW % 2 != 0)
+            {
+                newRoomSizeW++;
+            }
+
+            if (newRoomSizeH % 2 != 0)
+            {
+                newRoomSizeH++;
+            }
 
             int newRoomX = UnityEngine.Random.Range(0, gridSize - newRoomSizeW);
             int newRoomY = UnityEngine.Random.Range(0, gridSize - newRoomSizeH);
@@ -63,6 +75,8 @@ public class GenerateDungeon : MonoBehaviour
 
         foreach(Room room in rooms)
         {
+            // TODO: might need to convert these to int
+            // Decimal might break the A* code
             Vector2 middlePos = new Vector2(room.x, room.y) + (new Vector2(room.width, room.height) / 2f);
             pointList.Add(middlePos);
         }
@@ -75,10 +89,16 @@ public class GenerateDungeon : MonoBehaviour
         mst = new MST(triangulation.vertices, triangulation.allEdges, randomHallwayChance);
     }
 
+    private void PerformAStar()
+    {
+        aStar = new AStar(mst.resultingPath);
+    }
+
     private void GenerateHallways()
     {
         PerformDelaunayTriangulation();
         PerformMST();
+        PerformAStar();
     }
 
     private bool AddRoom(Room newRoom)

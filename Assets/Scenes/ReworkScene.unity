@@ -238,8 +238,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gridSize: 30
   roomsAmount: 23
-  roomMinSize: 1
+  roomMinSize: 2
   roomMaxSize: 5
+  randomHallwayChance: 0.25
   debugRoomModel: {fileID: 4610944988909363405, guid: 71f23a8449f1b7d499e02611a01e45e8, type: 3}
 --- !u!4 &267504678
 Transform:
