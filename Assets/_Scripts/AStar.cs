@@ -13,8 +13,6 @@ public class AStar
 
         public Node(float x, float y)
         {
-            // this.x = x;
-            // this.y = y;
             pos = new Vector2(x, y);
             Update(0, 0);
         }
@@ -25,6 +23,11 @@ public class AStar
             this.h = h;
 
             f = g + h;
+        }
+
+        public bool Equals(Node other)
+        {
+            return pos.Equals(other);
         }
     }
 
@@ -43,7 +46,20 @@ public class AStar
 
         openSet.Add(startNode);
         CalculateSurrondingNodes(startNode);
-        int fuck = 5;
+        
+        // while (openSet.Count != 0)
+        // {
+        //     // Find the lowest cost f-cost 
+        //     Node node = FindLowestFCostNode();
+        //     if (node.Equals(endNode))
+        //     {
+        //         Debug.Log("Found a path...");
+        //         return; 
+        //     }
+
+        //     openSet.Remove(node);
+        //     int fuck = 3;
+        // }
     }
 
     private float GetDistanceToEnd(Node compareNode)
@@ -74,7 +90,7 @@ public class AStar
                     continue;    
                 }
 
-                // Create new node
+                // Create and initialize the set
                 Node adjacentNode = new Node(xPos, yPos);
                 gCost = Vector2.Distance(centreNode.pos, adjacentNode.pos) + centreNode.g;
                 hCost = GetDistanceToEnd(adjacentNode);
@@ -97,5 +113,55 @@ public class AStar
             }
         }
         return null;
+    }
+
+    private Node FindLowestFCostNode()
+    {
+        // Find the lowest f-costing node 
+        List<Node> potentialNodes = new List<Node>();
+        float lowestFCost = Mathf.Infinity;
+        foreach(Node node in openSet)
+        {
+            if (node.f < lowestFCost)
+            {
+                potentialNodes.Clear();
+                potentialNodes.Add(node);
+                lowestFCost = node.f;
+            }
+            else if(node.f == lowestFCost)
+            {
+                potentialNodes.Add(node);
+            }
+        }
+
+        // If more then 1 node with the same f-cost are found then find the lowest h-cost 
+        if (potentialNodes.Count != 1)
+        {
+            List<Node> lowestHCostNodes = new List<Node>();
+            float lowestHCost = Mathf.Infinity;
+            foreach(Node node in potentialNodes)
+            {
+                if (node.h < lowestHCost)
+                {
+                    lowestHCostNodes.Clear();
+                    lowestHCostNodes.Add(node);
+                    lowestHCost = node.h;
+                }
+                if (node.h == lowestHCost)
+                {
+                    lowestHCostNodes.Add(node);
+                }
+            }
+            potentialNodes = lowestHCostNodes;
+        }
+
+        // If more then 1 node with the same h-cost are found then pick one randomly
+        if (potentialNodes.Count != 1)
+        {
+            int randomElement = Random.Range(0, potentialNodes.Count);
+            potentialNodes = new List<Node>{potentialNodes[randomElement]};
+        }
+
+        return potentialNodes[0];
     }
 }
