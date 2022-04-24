@@ -6,14 +6,22 @@ public class DebugVisualization : MonoBehaviour
 {
     private GenerateDungeon generateDungeon;
 
-    private bool showResultingPath, showPathsBuffer, showOpenSet;
+    private bool showResultingPath, showPathsBuffer, showAStar;
+    private Color[] PathColours;
+    private int colourIdx;
 
     private void Awake()
     {
         generateDungeon = GetComponent<GenerateDungeon>();
         showResultingPath = false;
         showPathsBuffer = false;
-        showOpenSet = true;
+        showAStar = true;
+
+        PathColours = new Color[] {
+            Color.red,
+            Color.green,
+            Color.blue,
+        };
     }
 
     private void Update()
@@ -30,7 +38,7 @@ public class DebugVisualization : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            showOpenSet = !showOpenSet;
+            showAStar = !showAStar;
         }
 
         if (showPathsBuffer && generateDungeon.mst.pathsBuffer != null)
@@ -59,13 +67,18 @@ public class DebugVisualization : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        if (showOpenSet && generateDungeon.aStar.totalPath != null)
+        if (showAStar && generateDungeon.aStar.totalPaths != null)
         {
-            Gizmos.color = new Color(0, 0, 1, 0.5f);
-            foreach(AStar.Node node in generateDungeon.aStar.totalPath)
+            colourIdx = 0;
+            foreach(List<AStar.Node> currentPath in generateDungeon.aStar.totalPaths)
             {
-                Vector3 pos = new Vector3(node.pos.x, 0, node.pos.y);
-                Gizmos.DrawCube(pos, new Vector3(1, 1, 1));
+                Gizmos.color = PathColours[colourIdx % 3];
+                foreach(AStar.Node node in currentPath)
+                {
+                    Vector3 pos = new Vector3(node.pos.x, 0, node.pos.y);
+                    Gizmos.DrawCube(pos, new Vector3(1, 1, 1));
+                }
+                colourIdx++;
             }
         }
     }
