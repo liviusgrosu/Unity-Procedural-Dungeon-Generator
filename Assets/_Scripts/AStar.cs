@@ -19,48 +19,50 @@ public class AStar
         }
     }
 
-    public List<Node> openSet, totalPath;
+    private List<Node> openSet;
+    public List<List<Node>> totalPaths;
     private Dictionary<Node, Node> cameFrom;
     private Dictionary<Node, float> gCosts, fCosts;
     private Node startNode, endNode;
 
-    private int failSafeInc, failSafeMax = 100;
-
     public AStar(List<MST.Path> paths)
     {
+        totalPaths = new List<List<Node>>();
         openSet = new List<Node>();
+        cameFrom = new Dictionary<Node, Node>();
+        gCosts = new Dictionary<Node, float>();
+        fCosts = new Dictionary<Node, float>();
         
-        // TEMP Just start with the first path
-        MST.Path tempFirstPath = paths[0];
+        foreach(MST.Path path in paths)
+        {
+            totalPaths.Add(GeneratePath(path));
+        }
+    }
 
-        startNode = new Node(tempFirstPath.a.vertex.x, tempFirstPath.a.vertex.y);
-        endNode = new Node(tempFirstPath.b.vertex.x, tempFirstPath.b.vertex.y);
+    private List<Node> GeneratePath(MST.Path path)
+    {
+        startNode = new Node(path.a.vertex.x, path.a.vertex.y);
+        endNode = new Node(path.b.vertex.x, path.b.vertex.y);
 
+        openSet.Clear();
         openSet.Add(startNode);
 
-        cameFrom = new Dictionary<Node, Node>();
-
-        gCosts = new Dictionary<Node, float>();
+        cameFrom.Clear();
+        
+        gCosts.Clear();
         gCosts[startNode] = 0;
 
-        fCosts = new Dictionary<Node, float>();
+        fCosts.Clear();
         fCosts[startNode] = GetDistanceToEnd(startNode);
 
         while (openSet.Count != 0)
         {
-            failSafeInc++;
-            if (failSafeInc > failSafeMax)
-            {
-                Debug.Log("Could not find path");
-                break;
-            }
             Node current = FindLowestFCostNode();
             if (current.Equals(endNode))
             {
-                Debug.Log("found some shit");
-                ReconstructPath(current);
-                return;
+                return ReconstructPath(current);
             }
+
             openSet.Remove(current);
             List<Node> adjacentNodes = GetAdjacentNodes(current);
 
@@ -79,26 +81,21 @@ public class AStar
                 }
             }
         }
+
+        return null;
     }
 
-    private void ReconstructPath(Node current)
+    private List<Node> ReconstructPath(Node current)
     {
-        failSafeInc = 0;
-        totalPath = new List<Node>() { current };
+        List<Node> totalPath = new List<Node>() { current };
 
         while (cameFrom.ContainsKey(current))
         {
-            failSafeInc++;
-            if (failSafeInc > failSafeMax)
-            {
-                Debug.Log("Could not find path");
-                break;
-            }
-
             current = cameFrom[current];
             totalPath.Add(current);
         }
-        int i = 5;
+
+        return totalPath;
     }
 
     private float GetDistanceToEnd(Node compareNode)
@@ -114,7 +111,13 @@ public class AStar
         {
             for(int y = -1; y <= 1; y++)
             {
-                if (x == 0 && y == 0)
+                if (
+                    x == 0 && y == 0 ||  
+                    x == -1 && y == -1 ||
+                    x == 1 && y == -1 || 
+                    x == -1 && y == 1 || 
+                    x == 1 && y == 1     
+                    )
                 {
                     // Dont inlcude the centre node
                     continue;
