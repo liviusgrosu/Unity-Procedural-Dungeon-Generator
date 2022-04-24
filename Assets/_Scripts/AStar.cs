@@ -19,8 +19,9 @@ public class AStar
         }
     }
 
-    private List<Node> openSet;
-    private Dictionary<Node, float> gCosts, fCosts, cameFrom;
+    public List<Node> openSet;
+    private List<Node> cameFrom;
+    private Dictionary<Node, float> gCosts, fCosts;
     private Node startNode, endNode;
 
     private int failSafeInc, failSafeMax = 100;
@@ -37,7 +38,7 @@ public class AStar
 
         openSet.Add(startNode);
 
-        // cameFrom = new Dictionary<Node, float>();
+        cameFrom = new List<Node>();
 
         gCosts = new Dictionary<Node, float>();
         gCosts[startNode] = 0;
@@ -67,7 +68,15 @@ public class AStar
                 float tenativeGCost = GetCostValue(gCosts, current) + Vector2.Distance(current.pos, adjacentNode.pos);
                 if (tenativeGCost < GetCostValue(gCosts, adjacentNode))
                 {
-                    // cameFrom[adjacentNode] = current;
+                    // if (cameFrom.Contains(adjacentNode))
+                    // {
+                    //     cameFrom[adjacentNode] = current;                    
+                    // }
+                    // else
+                    // {
+                    //     cameFrom.Add(adjacentNode);
+                    // }
+
                     gCosts[adjacentNode] = tenativeGCost;
                     fCosts[adjacentNode] = tenativeGCost + GetDistanceToEnd(adjacentNode);
                     if (!NodeExistsInSet(adjacentNode))

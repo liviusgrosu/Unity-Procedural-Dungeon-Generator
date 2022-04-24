@@ -12,3 +12,6 @@ https://math.stackexchange.com/questions/978642/how-to-sort-vertices-of-a-polygo
 
 https://www.youtube.com/watch?v=cplfcGZmX7I
 
+https://en.wikipedia.org/wiki/A*_search_algorithm
+
+https://codereview.stackexchange.com/questions/110621/dictionary-getvalueordefault/201182#201182
