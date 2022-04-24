@@ -15,13 +15,15 @@ public class AStar
 
         public bool Equals(Node other)
         {
-            return pos.Equals(other);
+            return pos.Equals(other.pos);
         }
     }
 
     private List<Node> openSet;
     private Dictionary<Node, float> gCosts, fCosts, cameFrom;
     private Node startNode, endNode;
+
+    private int failSafeInc, failSafeMax = 100;
 
     public AStar(List<MST.Path> paths)
     {
@@ -45,6 +47,12 @@ public class AStar
 
         while (openSet.Count != 0)
         {
+            failSafeInc++;
+            if (failSafeInc > failSafeMax)
+            {
+                Debug.Log("Could not find path");
+                break;
+            }
             Node current = FindLowestFCostNode();
             if (current.Equals(endNode))
             {
@@ -56,8 +64,8 @@ public class AStar
 
             foreach (Node adjacentNode in adjacentNodes)
             {
-                float tenativeGCost = gCosts[current] + Vector2.Distance(current.pos, adjacentNode.pos);
-                if (tenativeGCost < gCosts[adjacentNode])
+                float tenativeGCost = GetCostValue(gCosts, current) + Vector2.Distance(current.pos, adjacentNode.pos);
+                if (tenativeGCost < GetCostValue(gCosts, adjacentNode))
                 {
                     // cameFrom[adjacentNode] = current;
                     gCosts[adjacentNode] = tenativeGCost;
@@ -84,6 +92,12 @@ public class AStar
         {
             for(int y = -1; y <= 1; y++)
             {
+                if (x == 0 && y == 0)
+                {
+                    // Dont inlcude the centre node
+                    continue;
+                }
+
                 float xPos = centreNode.pos.x + x;
                 float yPos = centreNode.pos.y + y;
 
@@ -159,5 +173,10 @@ public class AStar
         }
 
         return potentialNodes[0];
+    }
+
+    private float GetCostValue(Dictionary<Node, float> dict, Node key)
+    {
+        return DictionaryExtensions.GetValueOrDefault(dict, key, Mathf.Infinity);
     }
 }
