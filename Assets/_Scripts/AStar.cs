@@ -6,23 +6,11 @@ public class AStar
 {
     public class Node
     {
-        public float f, g, h;
-
-        // public float x, y;
         public Vector2 pos;
 
         public Node(float x, float y)
         {
             pos = new Vector2(x, y);
-            Update(0, 0);
-        }
-
-        public void Update(float g, float h)
-        {
-            this.g = g;
-            this.h = h;
-
-            f = g + h;
         }
 
         public bool Equals(Node other)
@@ -32,6 +20,7 @@ public class AStar
     }
 
     private List<Node> openSet;
+    private Dictionary<Node, float> gCosts, fCosts, cameFrom;
     private Node startNode, endNode;
 
     public AStar(List<MST.Path> paths)
@@ -45,21 +34,41 @@ public class AStar
         endNode = new Node(tempFirstPath.b.vertex.x, tempFirstPath.b.vertex.y);
 
         openSet.Add(startNode);
-        CalculateSurrondingNodes(startNode);
-        
-        // while (openSet.Count != 0)
-        // {
-        //     // Find the lowest cost f-cost 
-        //     Node node = FindLowestFCostNode();
-        //     if (node.Equals(endNode))
-        //     {
-        //         Debug.Log("Found a path...");
-        //         return; 
-        //     }
 
-        //     openSet.Remove(node);
-        //     int fuck = 3;
-        // }
+        // cameFrom = new Dictionary<Node, float>();
+
+        gCosts = new Dictionary<Node, float>();
+        gCosts[startNode] = 0;
+
+        fCosts = new Dictionary<Node, float>();
+        fCosts[startNode] = GetDistanceToEnd(startNode);
+
+        while (openSet.Count != 0)
+        {
+            Node current = FindLowestFCostNode();
+            if (current.Equals(endNode))
+            {
+                Debug.Log("found some shit");
+                return;
+            }
+            openSet.Remove(current);
+            List<Node> adjacentNodes = GetAdjacentNodes(current);
+
+            foreach (Node adjacentNode in adjacentNodes)
+            {
+                float tenativeGCost = gCosts[current] + Vector2.Distance(current.pos, adjacentNode.pos);
+                if (tenativeGCost < gCosts[adjacentNode])
+                {
+                    // cameFrom[adjacentNode] = current;
+                    gCosts[adjacentNode] = tenativeGCost;
+                    fCosts[adjacentNode] = tenativeGCost + GetDistanceToEnd(adjacentNode);
+                    if (!NodeExistsInSet(adjacentNode))
+                    {
+                        openSet.Add(adjacentNode);
+                    }
+                }
+            }
+        }
     }
 
     private float GetDistanceToEnd(Node compareNode)
@@ -67,8 +76,10 @@ public class AStar
         return Vector2.Distance(compareNode.pos, endNode.pos);
     }
 
-    private void CalculateSurrondingNodes(Node centreNode)
+    private List<Node> GetAdjacentNodes(Node centreNode)
     {
+        List<Node> adjacentNodes = new List<Node>();
+
         for(int x = -1; x <= 1; x++)
         {
             for(int y = -1; y <= 1; y++)
@@ -76,43 +87,26 @@ public class AStar
                 float xPos = centreNode.pos.x + x;
                 float yPos = centreNode.pos.y + y;
 
-                float gCost = 0;
-                float hCost = 0;
-
-                // Update existing node
-                Node existingNode = FindNodeInSet(openSet, xPos, yPos);
-                if (existingNode != null)
-                {
-                    // Update the gCost
-                    gCost = Vector2.Distance(centreNode.pos, existingNode.pos) + centreNode.g;
-                    hCost = existingNode.h;
-                    existingNode.Update(gCost, hCost);
-                    continue;    
-                }
-
-                // Create and initialize the set
-                Node adjacentNode = new Node(xPos, yPos);
-                gCost = Vector2.Distance(centreNode.pos, adjacentNode.pos) + centreNode.g;
-                hCost = GetDistanceToEnd(adjacentNode);
-                adjacentNode.Update(gCost, hCost);
-                openSet.Add(adjacentNode);
+                adjacentNodes.Add(new Node(xPos, yPos));
             }
         }
+
+        return adjacentNodes;
     }
 
-    private Node FindNodeInSet(List<Node> set, float x, float y)
+    private bool NodeExistsInSet(Node compareTo)
     {
-        foreach(Node node in set)
+        foreach(Node node in openSet)
         {
             float nodeX = node.pos.x;
             float nodeY = node.pos.y;
 
-            if (nodeX == x && nodeY == y)
+            if (nodeX == compareTo.pos.x && nodeY == compareTo.pos.y)
             {
-                return node;
+                return true;
             }
         }
-        return null;
+        return false;
     }
 
     private Node FindLowestFCostNode()
@@ -122,13 +116,14 @@ public class AStar
         float lowestFCost = Mathf.Infinity;
         foreach(Node node in openSet)
         {
-            if (node.f < lowestFCost)
+            float nodeFCost = fCosts[node]; 
+            if (nodeFCost < lowestFCost)
             {
                 potentialNodes.Clear();
                 potentialNodes.Add(node);
-                lowestFCost = node.f;
+                lowestFCost = nodeFCost;
             }
-            else if(node.f == lowestFCost)
+            else if(nodeFCost == lowestFCost)
             {
                 potentialNodes.Add(node);
             }
@@ -141,13 +136,14 @@ public class AStar
             float lowestHCost = Mathf.Infinity;
             foreach(Node node in potentialNodes)
             {
-                if (node.h < lowestHCost)
+                float nodeHCost = GetDistanceToEnd(node);
+                if (nodeHCost < lowestHCost)
                 {
                     lowestHCostNodes.Clear();
                     lowestHCostNodes.Add(node);
-                    lowestHCost = node.h;
+                    lowestHCost = nodeHCost;
                 }
-                if (node.h == lowestHCost)
+                if (nodeHCost == lowestHCost)
                 {
                     lowestHCostNodes.Add(node);
                 }
