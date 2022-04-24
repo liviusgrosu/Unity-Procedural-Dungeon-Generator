@@ -19,8 +19,8 @@ public class AStar
         }
     }
 
-    public List<Node> openSet;
-    private List<Node> cameFrom;
+    public List<Node> openSet, totalPath;
+    private Dictionary<Node, Node> cameFrom;
     private Dictionary<Node, float> gCosts, fCosts;
     private Node startNode, endNode;
 
@@ -38,7 +38,7 @@ public class AStar
 
         openSet.Add(startNode);
 
-        cameFrom = new List<Node>();
+        cameFrom = new Dictionary<Node, Node>();
 
         gCosts = new Dictionary<Node, float>();
         gCosts[startNode] = 0;
@@ -58,6 +58,7 @@ public class AStar
             if (current.Equals(endNode))
             {
                 Debug.Log("found some shit");
+                ReconstructPath(current);
                 return;
             }
             openSet.Remove(current);
@@ -68,15 +69,7 @@ public class AStar
                 float tenativeGCost = GetCostValue(gCosts, current) + Vector2.Distance(current.pos, adjacentNode.pos);
                 if (tenativeGCost < GetCostValue(gCosts, adjacentNode))
                 {
-                    // if (cameFrom.Contains(adjacentNode))
-                    // {
-                    //     cameFrom[adjacentNode] = current;                    
-                    // }
-                    // else
-                    // {
-                    //     cameFrom.Add(adjacentNode);
-                    // }
-
+                    cameFrom[adjacentNode] = current;
                     gCosts[adjacentNode] = tenativeGCost;
                     fCosts[adjacentNode] = tenativeGCost + GetDistanceToEnd(adjacentNode);
                     if (!NodeExistsInSet(adjacentNode))
@@ -86,6 +79,26 @@ public class AStar
                 }
             }
         }
+    }
+
+    private void ReconstructPath(Node current)
+    {
+        failSafeInc = 0;
+        totalPath = new List<Node>() { current };
+
+        while (cameFrom.ContainsKey(current))
+        {
+            failSafeInc++;
+            if (failSafeInc > failSafeMax)
+            {
+                Debug.Log("Could not find path");
+                break;
+            }
+
+            current = cameFrom[current];
+            totalPath.Add(current);
+        }
+        int i = 5;
     }
 
     private float GetDistanceToEnd(Node compareNode)

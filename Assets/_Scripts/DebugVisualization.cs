@@ -59,10 +59,10 @@ public class DebugVisualization : MonoBehaviour
 
     void OnDrawGizmos()
     {
-        if (showOpenSet && generateDungeon.aStar.openSet != null)
+        if (showOpenSet && generateDungeon.aStar.totalPath != null)
         {
             Gizmos.color = new Color(0, 0, 1, 0.5f);
-            foreach(AStar.Node node in generateDungeon.aStar.openSet)
+            foreach(AStar.Node node in generateDungeon.aStar.totalPath)
             {
                 Vector3 pos = new Vector3(node.pos.x, 0, node.pos.y);
                 Gizmos.DrawCube(pos, new Vector3(1, 1, 1));
