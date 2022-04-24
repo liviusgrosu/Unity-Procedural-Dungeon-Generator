@@ -6,6 +6,7 @@ public class GenerateDungeon : MonoBehaviour
 {
     RoomGrid grid;
     List<Room> rooms;
+    List<GameObject> roomObjects;
 
     [SerializeField] int gridSize;
     [SerializeField] int roomsAmount;
@@ -21,10 +22,24 @@ public class GenerateDungeon : MonoBehaviour
     {
         grid = new RoomGrid(gridSize);
         rooms = new List<Room>();
+        roomObjects = new List<GameObject>();
 
         GenerateRooms();
         GenerateHallways();
         RenderMap();
+    }
+
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Space))
+        {
+            rooms.Clear();
+            
+            ClearMap();
+            GenerateRooms();
+            GenerateHallways();
+            RenderMap();
+        }
     }
 
     private void GenerateRooms()
@@ -57,6 +72,15 @@ public class GenerateDungeon : MonoBehaviour
         }
     }
 
+    private void ClearMap()
+    {
+        foreach(GameObject room in roomObjects)
+        {
+            Destroy(room);
+        }
+        roomObjects.Clear();
+    }
+
     private void RenderMap()
     {
         foreach(Room currRoom in rooms)
@@ -66,6 +90,7 @@ public class GenerateDungeon : MonoBehaviour
 
             GameObject roomInstance = Instantiate(debugRoomModel, roomPosition, Quaternion.identity);
             roomInstance.transform.localScale = roomScale;
+            roomObjects.Add(roomInstance);
         }
     }
 
