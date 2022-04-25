@@ -7,10 +7,12 @@ public class AStar
     public class Node
     {
         public Vector2 pos;
+        public List<int> openDirections;
 
         public Node(float x, float y)
         {
             pos = new Vector2(x, y);
+            openDirections = new List<int>();
         }
 
         public bool Equals(Node other)
@@ -90,10 +92,35 @@ public class AStar
     private List<Node> ReconstructPath(Node current)
     {
         List<Node> totalPath = new List<Node>() { current };
+        Node previous;
 
         while (cameFrom.ContainsKey(current))
         {
+            // Need to find the direction here...
+            previous = current;
             current = cameFrom[current];
+
+            if (previous.pos.x + 1 == current.pos.x)
+            {
+                previous.openDirections.Add(1);
+                current.openDirections.Add(3);
+            }
+            else if (previous.pos.x - 1 == current.pos.x)
+            {
+                previous.openDirections.Add(3);
+                current.openDirections.Add(1);
+            }
+            else if (previous.pos.y + 1 == current.pos.y)
+            {
+                previous.openDirections.Add(0);
+                current.openDirections.Add(2);
+            }
+            else if (previous.pos.y - 1 == current.pos.y)
+            {
+                previous.openDirections.Add(2);
+                current.openDirections.Add(0);
+            }
+
             totalPath.Add(current);
         }
 

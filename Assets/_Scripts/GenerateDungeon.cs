@@ -131,17 +131,4 @@ public class GenerateDungeon : MonoBehaviour
         rooms.Add(newRoom);
         return true;
     }
-
-    public bool CheckHallwayOverlapsRoom(Vector2 pos)
-    {
-        foreach(Room room in rooms)
-        {
-            if (pos.x >= room.x && pos.x <= room.x + room.width &&
-                pos.y >= room.y && pos.y <= room.y + room.height)
-            {
-                return true;
-            }
-        }
-        return false;
-    }
 }
