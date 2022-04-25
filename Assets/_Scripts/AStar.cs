@@ -33,6 +33,8 @@ public class AStar
         gCosts = new Dictionary<Node, float>();
         fCosts = new Dictionary<Node, float>();
         
+        totalPaths.Add(GeneratePath(paths[0]));
+
         foreach(MST.Path path in paths)
         {
             totalPaths.Add(GeneratePath(path));

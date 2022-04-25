@@ -7,8 +7,6 @@ public class DebugVisualization : MonoBehaviour
     private GenerateDungeon generateDungeon;
 
     private bool showResultingPath, showPathsBuffer, showAStar;
-    private Color[] PathColours;
-    private int colourIdx;
 
     private void Awake()
     {
@@ -16,12 +14,6 @@ public class DebugVisualization : MonoBehaviour
         showResultingPath = false;
         showPathsBuffer = false;
         showAStar = true;
-
-        PathColours = new Color[] {
-            Color.red,
-            Color.green,
-            Color.blue,
-        };
     }
 
     private void Update()
@@ -67,18 +59,20 @@ public class DebugVisualization : MonoBehaviour
 
     void OnDrawGizmos()
     {
+        Gizmos.color = Color.blue;
         if (showAStar && generateDungeon.aStar.totalPaths != null)
         {
-            colourIdx = 0;
             foreach(List<AStar.Node> currentPath in generateDungeon.aStar.totalPaths)
             {
-                Gizmos.color = PathColours[colourIdx % 3];
                 foreach(AStar.Node node in currentPath)
                 {
+                    if (generateDungeon.CheckHallwayOverlapsRoom(node.pos))
+                    {
+                        continue;
+                    }
                     Vector3 pos = new Vector3(node.pos.x, 0, node.pos.y);
                     Gizmos.DrawCube(pos, new Vector3(1, 1, 1));
                 }
-                colourIdx++;
             }
         }
     }
