@@ -54,26 +54,25 @@ public class DebugVisualization : MonoBehaviour
                 Debug.DrawLine(pointA, pointB, Color.green);
             }
         }
-
     }
 
     void OnDrawGizmos()
     {
-        Gizmos.color = Color.blue;
-        if (showAStar && generateDungeon.aStar.totalPaths != null)
-        {
-            foreach(List<AStar.Node> currentPath in generateDungeon.aStar.totalPaths)
-            {
-                foreach(AStar.Node node in currentPath)
-                {
-                    if (generateDungeon.CheckHallwayOverlapsRoom(node.pos))
-                    {
-                        continue;
-                    }
-                    Vector3 pos = new Vector3(node.pos.x, 0, node.pos.y);
-                    Gizmos.DrawCube(pos, new Vector3(1, 1, 1));
-                }
-            }
-        }
+        // Gizmos.color = Color.blue;
+        // if (showAStar && generateDungeon.aStar.totalPaths != null)
+        // {
+        //     foreach(List<AStar.Node> currentPath in generateDungeon.aStar.totalPaths)
+        //     {
+        //         foreach(AStar.Node node in currentPath)
+        //         {
+        //             if (generateDungeon.CheckHallwayOverlapsRoom(node.pos))
+        //             {
+        //                 continue;
+        //             }
+        //             Vector3 pos = new Vector3(node.pos.x, 0, node.pos.y);
+        //             Gizmos.DrawCube(pos, new Vector3(1, 1, 1));
+        //         }
+        //     }
+        // }
     }
 }

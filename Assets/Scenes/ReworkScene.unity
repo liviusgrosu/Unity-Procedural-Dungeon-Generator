@@ -217,6 +217,7 @@ GameObject:
   - component: {fileID: 267504678}
   - component: {fileID: 267504677}
   - component: {fileID: 267504679}
+  - component: {fileID: 267504680}
   m_Layer: 0
   m_Name: Map Generator
   m_TagString: Untagged
@@ -268,6 +269,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 58687cd9fc98ebf4599457ce4ebcc508, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &267504680
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 267504676}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d1715374d5563f4fbffef7fbf10c2fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseRoomModel: {fileID: 7889399312113467032, guid: 66d02f462142e0345bfae5b26a9e59f0, type: 3}
+  Wall: {fileID: 8522492909811462339, guid: 8c3247653d922674e909ba9466bad8e9, type: 3}
+  DoorCutout: {fileID: 0}
 --- !u!1 &1633365127
 GameObject:
   m_ObjectHideFlags: 0

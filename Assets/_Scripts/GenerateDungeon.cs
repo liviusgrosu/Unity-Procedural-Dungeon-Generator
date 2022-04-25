@@ -17,16 +17,18 @@ public class GenerateDungeon : MonoBehaviour
     public Triangulation triangulation;
     public MST mst;
     public AStar aStar;
+    private RenderMap renderer;
 
     private void Awake()
     {
         grid = new RoomGrid(gridSize);
         rooms = new List<Room>();
         roomObjects = new List<GameObject>();
+        renderer = GetComponent<RenderMap>();
 
         GenerateRooms();
         GenerateHallways();
-        RenderMap();
+        renderer.Render(rooms, aStar);
     }
 
     private void Update()
@@ -38,7 +40,7 @@ public class GenerateDungeon : MonoBehaviour
             ClearMap();
             GenerateRooms();
             GenerateHallways();
-            RenderMap();
+            renderer.Render(rooms, aStar);
         }
     }
 
@@ -79,19 +81,6 @@ public class GenerateDungeon : MonoBehaviour
             Destroy(room);
         }
         roomObjects.Clear();
-    }
-
-    private void RenderMap()
-    {
-        foreach(Room currRoom in rooms)
-        {
-            Vector3 roomPosition = new Vector3(currRoom.x + (currRoom.width / 2f), 0f, currRoom.y + (currRoom.height / 2f));
-            Vector3 roomScale = new Vector3(currRoom.width, debugRoomModel.transform.localScale.y, currRoom.height);
-
-            GameObject roomInstance = Instantiate(debugRoomModel, roomPosition, Quaternion.identity);
-            roomInstance.transform.localScale = roomScale;
-            roomObjects.Add(roomInstance);
-        }
     }
 
     private void PerformDelaunayTriangulation()
