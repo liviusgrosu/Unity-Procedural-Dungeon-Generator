@@ -1,13 +1,13 @@
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class GenerateDungeon : MonoBehaviour 
 {
-    RoomGrid grid;
+    List<Tile> tiles;
     List<Room> rooms;
     List<GameObject> roomObjects;
-
     [SerializeField] int gridSize;
     [SerializeField] int roomsAmount;
     [SerializeField] int roomMinSize, roomMaxSize;
@@ -21,14 +21,14 @@ public class GenerateDungeon : MonoBehaviour
 
     private void Awake()
     {
-        grid = new RoomGrid(gridSize);
         rooms = new List<Room>();
         roomObjects = new List<GameObject>();
         renderer = GetComponent<RenderMap>();
 
         GenerateRooms();
         GenerateHallways();
-        renderer.Render(rooms, aStar);
+        ConstructTiles();
+        //renderer.Render(rooms, aStar);
     }
 
     private void Update()
@@ -40,7 +40,8 @@ public class GenerateDungeon : MonoBehaviour
             ClearMap();
             GenerateRooms();
             GenerateHallways();
-            renderer.Render(rooms, aStar);
+            ConstructTiles();
+            //renderer.Render(rooms, aStar);
         }
     }
 
@@ -113,6 +114,30 @@ public class GenerateDungeon : MonoBehaviour
         PerformDelaunayTriangulation();
         PerformMST();
         PerformAStar();
+    }
+
+    private void ConstructTiles()
+    {
+        foreach(Room room in rooms)
+        {
+            Tile tile = new Tile(new Vector2(room.x, room.y), Tile.Type.Room);
+            tiles.Add(tile);
+        }
+
+        foreach(List<AStar.Node> currentPath in aStar.totalPaths)
+        {
+            foreach(AStar.Node node in currentPath)
+            {
+                // Ignore if the hallway overlaps another tile
+                if (tiles.Where(p => p.pos == node.pos) != null)
+                {
+                    continue;
+                }
+
+                Tile tile = new Tile(node.pos, Tile.Type.Hallway);
+                tiles.Add(tile);
+            }
+        }
     }
 
     private bool AddRoom(Room newRoom)
