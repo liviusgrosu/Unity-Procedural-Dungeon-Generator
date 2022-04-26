@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class GenerateDungeon : MonoBehaviour 
 {
-    List<Tile> tiles;
+    public static List<Tile> tiles;
     List<Room> rooms;
     List<GameObject> roomObjects;
     [SerializeField] int gridSize;
@@ -21,6 +21,7 @@ public class GenerateDungeon : MonoBehaviour
 
     private void Awake()
     {
+        tiles = new List<Tile>();
         rooms = new List<Room>();
         roomObjects = new List<GameObject>();
         renderer = GetComponent<RenderMap>();
@@ -28,7 +29,7 @@ public class GenerateDungeon : MonoBehaviour
         GenerateRooms();
         GenerateHallways();
         ConstructTiles();
-        //renderer.Render(rooms, aStar);
+        renderer.Render();
     }
 
     private void Update()
@@ -41,7 +42,7 @@ public class GenerateDungeon : MonoBehaviour
             GenerateRooms();
             GenerateHallways();
             ConstructTiles();
-            //renderer.Render(rooms, aStar);
+            renderer.Render();
         }
     }
 
@@ -118,18 +119,27 @@ public class GenerateDungeon : MonoBehaviour
 
     private void ConstructTiles()
     {
+        // TODO: change this to a non-magic number
+        float roomTileOffset = 0.5f;
         foreach(Room room in rooms)
         {
-            Tile tile = new Tile(new Vector2(room.x, room.y), Tile.Type.Room);
-            tiles.Add(tile);
+            // For each room create a tile
+            for(int x = 0; x < room.width; x++)
+            {
+                for(int y = 0; y < room.height; y++)
+                {
+                    Tile tile = new Tile(new Vector2(room.x + x + roomTileOffset, room.y + y + roomTileOffset), Tile.Type.Room);
+                    tiles.Add(tile);
+                }
+            }
         }
 
-        foreach(List<AStar.Node> currentPath in aStar.totalPaths)
+        foreach(List<AStar.Node> currentPath in aStar.totalPaths) 
         {
             foreach(AStar.Node node in currentPath)
             {
                 // Ignore if the hallway overlaps another tile
-                if (tiles.Where(p => p.pos == node.pos) != null)
+                if (tiles.Any(x => x.pos.Equals(node.pos)))
                 {
                     continue;
                 }
@@ -138,6 +148,7 @@ public class GenerateDungeon : MonoBehaviour
                 tiles.Add(tile);
             }
         }
+        int i = 5;
     }
 
     private bool AddRoom(Room newRoom)
