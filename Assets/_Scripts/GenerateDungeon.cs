@@ -148,7 +148,6 @@ public class GenerateDungeon : MonoBehaviour
                 tiles.Add(tile);
             }
         }
-        int i = 5;
     }
 
     private bool AddRoom(Room newRoom)
