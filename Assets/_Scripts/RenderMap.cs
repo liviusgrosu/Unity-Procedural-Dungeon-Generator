@@ -5,9 +5,12 @@ using UnityEngine;
 
 public class RenderMap : MonoBehaviour 
 {
-    [SerializeField] GameObject baseRoomModel;
+    [SerializeField] GameObject floor;
+    [SerializeField] GameObject roof;
     [SerializeField] GameObject Wall;
     [SerializeField] GameObject DoorCutout;
+    [SerializeField] Transform objectParent;
+    [SerializeField] float objectScale;
 
     [SerializeField] GameObject Player;
 
@@ -25,7 +28,11 @@ public class RenderMap : MonoBehaviour
         foreach(Tile tile in GenerateDungeon.tiles)
         {
             Vector3 roomPosition = new Vector3(tile.pos.x, 0f, tile.pos.y);
-            GameObject roomInstance = Instantiate(baseRoomModel, roomPosition, baseRoomModel.transform.rotation);
+            GameObject roomObj = Instantiate(floor, roomPosition, floor.transform.rotation);
+            GameObject roofObj = Instantiate(roof, new Vector3(roomPosition.x, roof.transform.position.y, roomPosition.z), roof.transform.rotation);
+            
+            roomObj.transform.parent = objectParent;
+            roofObj.transform.parent = objectParent;
             
             // Check for NORTH adjacent room 
             if (!GenerateDungeon.tiles.Any(x => x.pos.Equals(tile.pos - new Vector2(0, 1))))
@@ -49,13 +56,16 @@ public class RenderMap : MonoBehaviour
             if (!GenerateDungeon.tiles.Any(x => x.pos.Equals(tile.pos - new Vector2(-1, 0))))
             {
                 RenderWall(roomPosition, 180);
-            }
+            }   
         }
+
+        objectParent.localScale = Vector3.one * objectScale;
     }
 
     private void RenderWall(Vector3 pos, float rotationOffset)
     {
         GameObject wallInstance = Instantiate(Wall, pos, Wall.transform.rotation);
-        wallInstance.transform.Rotate(0, 0, rotationOffset);
+        wallInstance.transform.Rotate(0, rotationOffset - 180f, 0);
+        wallInstance.transform.parent = objectParent;
     }
 }
