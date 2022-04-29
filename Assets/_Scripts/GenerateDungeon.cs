@@ -120,7 +120,7 @@ public class GenerateDungeon : MonoBehaviour
             }
         }
 
-        foreach(List<AStar.Node> currentPath in aStar.totalPaths) 
+        foreach(List<AStar.Node> currentPath in aStar.TotalPaths) 
         {
             foreach(AStar.Node node in currentPath)
             {

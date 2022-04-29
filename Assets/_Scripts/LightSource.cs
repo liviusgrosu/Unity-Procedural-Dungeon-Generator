@@ -1,15 +1,12 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class LightSource : MonoBehaviour
 {
-    [SerializeField] float MaxIntensity = 1;
+    [SerializeField] private float MaxIntensity = 1;
     
     private Light source;
 
-    private void Awake()
+    void Awake()
     {
         source = GetComponent<Light>();
         source.intensity = 0f;
@@ -17,6 +14,18 @@ public class LightSource : MonoBehaviour
 
     public void ChangeIntensity(float percent)
     {
-        source.intensity = percent * MaxIntensity;
+        // Change intensity of light depending on how far away it is from the player
+        float newIntesity = percent * MaxIntensity;
+
+        // Disable the light if its far away enough to improve performance
+        if (newIntesity <= 0.05f)
+        {
+            source.enabled = false;
+        }
+        else
+        {
+            source.enabled = true;
+            source.intensity = newIntesity;
+        }
     }
 }

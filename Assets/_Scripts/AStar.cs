@@ -1,18 +1,29 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class AStar
 {
+    public AStar(List<MST.Path> paths)
+    {
+        TotalPaths = new List<List<Node>>();
+        openSet = new List<Node>();
+        cameFrom = new Dictionary<Node, Node>();
+        gCosts = new Dictionary<Node, float>();
+        fCosts = new Dictionary<Node, float>();
+
+        foreach(MST.Path path in paths)
+        {
+            TotalPaths.Add(GeneratePath(path));
+        }
+    }
+    
     public class Node
     {
         public Vector2 pos;
-        public List<int> openDirections;
 
         public Node(float x, float y)
         {
             pos = new Vector2(x, y);
-            openDirections = new List<int>();
         }
 
         public bool Equals(Node other)
@@ -21,30 +32,15 @@ public class AStar
         }
     }
 
+    public List<List<Node>> TotalPaths;
     private List<Node> openSet;
-    public List<List<Node>> totalPaths;
     private Dictionary<Node, Node> cameFrom;
     private Dictionary<Node, float> gCosts, fCosts;
     private Node startNode, endNode;
 
-    public AStar(List<MST.Path> paths)
+    List<Node> GeneratePath(MST.Path path)
     {
-        totalPaths = new List<List<Node>>();
-        openSet = new List<Node>();
-        cameFrom = new Dictionary<Node, Node>();
-        gCosts = new Dictionary<Node, float>();
-        fCosts = new Dictionary<Node, float>();
-        
-        totalPaths.Add(GeneratePath(paths[0]));
-
-        foreach(MST.Path path in paths)
-        {
-            totalPaths.Add(GeneratePath(path));
-        }
-    }
-
-    private List<Node> GeneratePath(MST.Path path)
-    {
+        // Initialize
         startNode = new Node(path.a.vertex.x, path.a.vertex.y);
         endNode = new Node(path.b.vertex.x, path.b.vertex.y);
 
@@ -61,15 +57,18 @@ public class AStar
 
         while (openSet.Count != 0)
         {
+            // Find the lowest f score node and remove it from the open set
             Node current = FindLowestFCostNode();
             if (current.Equals(endNode))
             {
+                // Return the lowest costing path
                 return ReconstructPath(current);
             }
 
             openSet.Remove(current);
             List<Node> adjacentNodes = GetAdjacentNodes(current);
 
+            // Go through all the adjacent nodes, update their costs and add them to the open set
             foreach (Node adjacentNode in adjacentNodes)
             {
                 float tenativeGCost = GetCostValue(gCosts, current) + Vector2.Distance(current.pos, adjacentNode.pos);
@@ -91,36 +90,14 @@ public class AStar
 
     private List<Node> ReconstructPath(Node current)
     {
+        // Traverse back on the previous nodes to get the least costing path
         List<Node> totalPath = new List<Node>() { current };
         Node previous;
 
         while (cameFrom.ContainsKey(current))
         {
-            // Need to find the direction here...
             previous = current;
             current = cameFrom[current];
-
-            if (previous.pos.x + 1 == current.pos.x)
-            {
-                previous.openDirections.Add(1);
-                current.openDirections.Add(3);
-            }
-            else if (previous.pos.x - 1 == current.pos.x)
-            {
-                previous.openDirections.Add(3);
-                current.openDirections.Add(1);
-            }
-            else if (previous.pos.y + 1 == current.pos.y)
-            {
-                previous.openDirections.Add(0);
-                current.openDirections.Add(2);
-            }
-            else if (previous.pos.y - 1 == current.pos.y)
-            {
-                previous.openDirections.Add(2);
-                current.openDirections.Add(0);
-            }
-
             totalPath.Add(current);
         }
 
@@ -140,13 +117,8 @@ public class AStar
         {
             for(int y = -1; y <= 1; y++)
             {
-                if (
-                    x == 0 && y == 0 ||  
-                    x == -1 && y == -1 ||
-                    x == 1 && y == -1 || 
-                    x == -1 && y == 1 || 
-                    x == 1 && y == 1     
-                    )
+                // Only include directly adjacent nodes
+                if (Mathf.Abs(x + y) != 1)
                 {
                     // Dont inlcude the centre node
                     continue;
