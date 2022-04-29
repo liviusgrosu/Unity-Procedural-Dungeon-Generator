@@ -52,7 +52,7 @@ public class PlayerController : MonoBehaviour
         // as an acceleration (ms^-2)
         if (!characterController.isGrounded)
         {
-            moveDirection.y -= gravity * Time.deltaTime;
+            //moveDirection.y -= gravity * Time.deltaTime;
         }
 
         // Move the controller

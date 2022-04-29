@@ -8,11 +8,13 @@ public class RenderMap : MonoBehaviour
     [SerializeField] GameObject floor;
     [SerializeField] GameObject roof;
     [SerializeField] GameObject Wall;
-    [SerializeField] GameObject DoorCutout;
+    [SerializeField] GameObject torch;
     [SerializeField] Transform objectParent;
     [SerializeField] float objectScale;
-
     [SerializeField] GameObject Player;
+    
+    [SerializeField] float torchMaxSpread;
+    private float torchCurSpread;
 
     public void Render()
     {
@@ -20,7 +22,6 @@ public class RenderMap : MonoBehaviour
         
         Vector3 startingPos = new Vector3(GenerateDungeon.tiles[0].pos.x, 0, GenerateDungeon.tiles[0].pos.y); 
         Instantiate(Player, startingPos, Player.transform.rotation);
-        Debug.Break();
     }
 
     private void RenderTiles()
@@ -67,5 +68,19 @@ public class RenderMap : MonoBehaviour
         GameObject wallInstance = Instantiate(Wall, pos, Wall.transform.rotation);
         wallInstance.transform.Rotate(0, rotationOffset - 180f, 0);
         wallInstance.transform.parent = objectParent;
+
+        torchCurSpread++;
+        if (torchCurSpread % torchMaxSpread == 0)
+        {
+            RenderTorch(pos, rotationOffset);
+        }
+    }
+
+    private void RenderTorch(Vector3 pos, float rotationOffset)
+    {
+        GameObject torchInstance = Instantiate(torch, pos, torch.transform.rotation);
+        torchInstance.transform.Rotate(0, rotationOffset - 180f, 0);
+        torchInstance.transform.parent = objectParent;
+
     }
 }
