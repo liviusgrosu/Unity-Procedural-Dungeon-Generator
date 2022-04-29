@@ -20,13 +20,13 @@ public class RenderMap : MonoBehaviour
     {
         RenderTiles();
         
-        Vector3 startingPos = new Vector3(GenerateDungeon.tiles[0].pos.x * objectScale, Player.GetComponent<CharacterController>().height / 2f, GenerateDungeon.tiles[0].pos.y * objectScale); 
+        Vector3 startingPos = new Vector3(GenerateDungeon.Tiles[0].pos.x * objectScale, Player.GetComponent<CharacterController>().height / 2f, GenerateDungeon.Tiles[0].pos.y * objectScale); 
         Instantiate(Player, startingPos, Player.transform.rotation);
     }
 
     private void RenderTiles()
     {
-        foreach(Tile tile in GenerateDungeon.tiles)
+        foreach(Tile tile in GenerateDungeon.Tiles)
         {
             int randomIdx = Random.Range(0, floors.Count);
             Vector3 roomPosition = new Vector3(tile.pos.x, 0f, tile.pos.y);
@@ -37,25 +37,25 @@ public class RenderMap : MonoBehaviour
             roofObj.transform.parent = objectParent;
             
             // Check for NORTH adjacent room 
-            if (!GenerateDungeon.tiles.Any(x => x.pos.Equals(tile.pos - new Vector2(0, 1))))
+            if (!GenerateDungeon.Tiles.Any(x => x.pos.Equals(tile.pos - new Vector2(0, 1))))
             {
                 RenderWall(roomPosition, 270);
             }
 
             // Check for SOUTH adjacent room 
-            if (!GenerateDungeon.tiles.Any(x => x.pos.Equals(tile.pos - new Vector2(0, -1))))
+            if (!GenerateDungeon.Tiles.Any(x => x.pos.Equals(tile.pos - new Vector2(0, -1))))
             {
                 RenderWall(roomPosition, 90);
             }
 
             // Check for WEST adjacent room 
-            if (!GenerateDungeon.tiles.Any(x => x.pos.Equals(tile.pos - new Vector2(1, 0))))
+            if (!GenerateDungeon.Tiles.Any(x => x.pos.Equals(tile.pos - new Vector2(1, 0))))
             {
                 RenderWall(roomPosition, 0);
             }
 
             // Check for EAST adjacent room 
-            if (!GenerateDungeon.tiles.Any(x => x.pos.Equals(tile.pos - new Vector2(-1, 0))))
+            if (!GenerateDungeon.Tiles.Any(x => x.pos.Equals(tile.pos - new Vector2(-1, 0))))
             {
                 RenderWall(roomPosition, 180);
             }   

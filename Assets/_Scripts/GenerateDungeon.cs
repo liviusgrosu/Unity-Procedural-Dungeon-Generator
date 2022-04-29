@@ -5,15 +5,15 @@ using UnityEngine;
 
 public class GenerateDungeon : MonoBehaviour 
 {
-    public static List<Tile> tiles;
-    List<Room> rooms;
-    List<GameObject> roomObjects;
-    [SerializeField] int gridSize;
-    [SerializeField] int roomsAmount;
-    [SerializeField] int roomMinSize, roomMaxSize;
+    public static List<Tile> Tiles;
+    private List<Room> rooms;
+    private List<GameObject> roomObjects;
+    [SerializeField] private int gridSize;
+    [SerializeField] private int roomsAmount;
+    [SerializeField] private int roomMinSize, roomMaxSize;
     [Range(0.0f, 1.0f)]
-    [SerializeField] float randomHallwayChance;
-    [SerializeField] GameObject debugRoomModel;
+    [SerializeField] private float randomHallwayChance;
+    [SerializeField] private GameObject debugRoomModel;
     public Triangulation triangulation;
     public MST mst;
     public AStar aStar;
@@ -21,7 +21,7 @@ public class GenerateDungeon : MonoBehaviour
 
     private void Awake()
     {
-        tiles = new List<Tile>();
+        Tiles = new List<Tile>();
         rooms = new List<Room>();
         roomObjects = new List<GameObject>();
         renderer = GetComponent<RenderMap>();
@@ -34,70 +34,73 @@ public class GenerateDungeon : MonoBehaviour
 
     private void GenerateRooms()
     {
+        // Randomly generate rooms with varying size and location
         for(int i = 0; i < roomsAmount; i++)
         {
-            int newRoomSizeW = UnityEngine.Random.Range(roomMinSize, roomMaxSize + 1);
-            int newRoomSizeH = UnityEngine.Random.Range(roomMinSize, roomMaxSize + 1);
-
-            // Ensure that room is always an even number
-            if (newRoomSizeW % 2 != 1)
+            Room newRoom = null;
+            int fallSafeMax = 100;
+            int currentIncrement = 0;
+            do
             {
-                newRoomSizeW++;
-            }
+                int newRoomSizeW = UnityEngine.Random.Range(roomMinSize, roomMaxSize + 1);
+                int newRoomSizeH = UnityEngine.Random.Range(roomMinSize, roomMaxSize + 1);
 
-            if (newRoomSizeH % 2 != 1)
-            {
-                newRoomSizeH++;
-            }
+                // Ensure that room is always an even number
+                if (newRoomSizeW % 2 != 1)
+                {
+                    newRoomSizeW++;
+                }
 
-            int newRoomX = UnityEngine.Random.Range(0, gridSize - newRoomSizeW);
-            int newRoomY = UnityEngine.Random.Range(0, gridSize - newRoomSizeH);
+                if (newRoomSizeH % 2 != 1)
+                {
+                    newRoomSizeH++;
+                }
 
-            Room newRoom = new Room(newRoomX, newRoomY, newRoomSizeW, newRoomSizeH);
+                // Get new location
+                int newRoomX = UnityEngine.Random.Range(0, gridSize - newRoomSizeW);
+                int newRoomY = UnityEngine.Random.Range(0, gridSize - newRoomSizeH);
 
-            if (!AddRoom(newRoom))
-            {
-                continue;
-            }
+                // Create the room
+                newRoom = new Room(newRoomX, newRoomY, newRoomSizeW, newRoomSizeH);
+
+                currentIncrement++;
+                if (currentIncrement > fallSafeMax)
+                {
+                    // Break out of loop if its stuck
+                    break;
+                }
+            } while (!AddRoom(newRoom));
         }
-    }
-
-    private void ClearMap()
-    {
-        foreach(GameObject room in roomObjects)
-        {
-            Destroy(room);
-        }
-        roomObjects.Clear();
     }
 
     private void PerformDelaunayTriangulation()
     {
+        // Create a point list from the rooms
         List<Vector2> pointList = new List<Vector2>();
-
         foreach(Room room in rooms)
         {
-            // TODO: might need to convert these to int
-            // Decimal might break the A* code
             Vector2 middlePos = new Vector2(room.x, room.y) + (new Vector2(room.width, room.height) / 2f);
             pointList.Add(middlePos);
         }
-        
+        // Pass point list to the triangulation class
         triangulation = new Triangulation(pointList);
     }
 
     private void PerformMST()
     {
+        // Create a MST
         mst = new MST(triangulation.vertices, triangulation.allEdges, randomHallwayChance);
     }
 
     private void PerformAStar()
     {
+        // Calculate AStar paths
         aStar = new AStar(mst.resultingPath);
     }
 
     private void GenerateHallways()
     {
+        //Create the hallways using various algorithms
         PerformDelaunayTriangulation();
         PerformMST();
         PerformAStar();
@@ -115,7 +118,7 @@ public class GenerateDungeon : MonoBehaviour
                 for(int y = 0; y < room.height; y++)
                 {
                     Tile tile = new Tile(new Vector2(room.x + x + roomTileOffset, room.y + y + roomTileOffset), Tile.Type.Room);
-                    tiles.Add(tile);
+                    Tiles.Add(tile);
                 }
             }
         }
@@ -125,13 +128,13 @@ public class GenerateDungeon : MonoBehaviour
             foreach(AStar.Node node in currentPath)
             {
                 // Ignore if the hallway overlaps another tile
-                if (tiles.Any(x => x.pos.Equals(node.pos)))
+                if (Tiles.Any(x => x.pos.Equals(node.pos)))
                 {
                     continue;
                 }
 
                 Tile tile = new Tile(node.pos, Tile.Type.Hallway);
-                tiles.Add(tile);
+                Tiles.Add(tile);
             }
         }
     }

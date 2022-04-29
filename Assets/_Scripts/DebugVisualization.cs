@@ -6,32 +6,20 @@ public class DebugVisualization : MonoBehaviour
 {
     private GenerateDungeon generateDungeon;
 
-    private bool showResultingPath, showPathsBuffer, showAStar;
-
+    private bool showResultingPath, showPathsBuffer;
     private void Awake()
     {
         generateDungeon = GetComponent<GenerateDungeon>();
         showResultingPath = false;
         showPathsBuffer = false;
-        showAStar = true;
     }
 
     private void Update()
     {
-        if (Input.GetKeyDown(KeyCode.B))
+        // Toggle the MST visualization
+        if (Input.GetKeyDown(KeyCode.T))
         {
             showResultingPath = !showResultingPath;
-        }
-
-        if (showPathsBuffer && generateDungeon.mst.pathsBuffer != null)
-        {
-            foreach(MST.Path path in generateDungeon.mst.pathsBuffer)
-            {
-                Vector3 pointA = new Vector3(path.a.vertex.x, 0f, path.a.vertex.y);
-                Vector3 pointB = new Vector3(path.b.vertex.x, 0f, path.b.vertex.y);
-
-                Debug.DrawLine(pointA, pointB, Color.gray);
-            }
         }
 
         if (showResultingPath && generateDungeon.mst.resultingPath != null)
@@ -42,6 +30,23 @@ public class DebugVisualization : MonoBehaviour
                 Vector3 pointB = new Vector3(path.b.vertex.x, 0f, path.b.vertex.y);
 
                 Debug.DrawLine(pointA, pointB, Color.green);
+            }
+        }
+
+        // Toggle the compliment-MST visualization
+        if (Input.GetKeyDown(KeyCode.Y))
+        {
+            showPathsBuffer = !showPathsBuffer;
+        }
+
+        if (showPathsBuffer && generateDungeon.mst.pathsBuffer != null)
+        {
+            foreach(MST.Path path in generateDungeon.mst.pathsBuffer)
+            {
+                Vector3 pointA = new Vector3(path.a.vertex.x, 0f, path.a.vertex.y);
+                Vector3 pointB = new Vector3(path.b.vertex.x, 0f, path.b.vertex.y);
+
+                Debug.DrawLine(pointA, pointB, Color.gray);
             }
         }
     }

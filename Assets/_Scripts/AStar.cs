@@ -3,6 +3,12 @@ using UnityEngine;
 
 public class AStar
 {
+    public List<List<Node>> TotalPaths;
+    private List<Node> openSet;
+    private Dictionary<Node, Node> cameFrom;
+    private Dictionary<Node, float> gCosts, fCosts;
+    private Node startNode, endNode;
+
     public AStar(List<MST.Path> paths)
     {
         TotalPaths = new List<List<Node>>();
@@ -32,18 +38,13 @@ public class AStar
         }
     }
 
-    public List<List<Node>> TotalPaths;
-    private List<Node> openSet;
-    private Dictionary<Node, Node> cameFrom;
-    private Dictionary<Node, float> gCosts, fCosts;
-    private Node startNode, endNode;
-
     List<Node> GeneratePath(MST.Path path)
     {
         // Initialize
         startNode = new Node(path.a.vertex.x, path.a.vertex.y);
         endNode = new Node(path.b.vertex.x, path.b.vertex.y);
 
+        // Clear any previosuly used lists
         openSet.Clear();
         openSet.Add(startNode);
 
@@ -106,11 +107,13 @@ public class AStar
 
     private float GetDistanceToEnd(Node compareNode)
     {
+        // Get distance to the end node from the current
         return Vector2.Distance(compareNode.pos, endNode.pos);
     }
 
     private List<Node> GetAdjacentNodes(Node centreNode)
     {
+        // Find all adjacent nodes
         List<Node> adjacentNodes = new List<Node>();
 
         for(int x = -1; x <= 1; x++)
@@ -136,6 +139,7 @@ public class AStar
 
     private bool NodeExistsInSet(Node compareTo)
     {
+        // Check if node exists in a set
         foreach(Node node in openSet)
         {
             float nodeX = node.pos.x;
@@ -203,6 +207,7 @@ public class AStar
 
     private float GetCostValue(Dictionary<Node, float> dict, Node key)
     {
+        // Get cost of key
         return DictionaryExtensions.GetValueOrDefault(dict, key, Mathf.Infinity);
     }
 }
