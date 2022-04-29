@@ -32,20 +32,6 @@ public class GenerateDungeon : MonoBehaviour
         renderer.Render();
     }
 
-    private void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            rooms.Clear();
-            
-            ClearMap();
-            GenerateRooms();
-            GenerateHallways();
-            ConstructTiles();
-            renderer.Render();
-        }
-    }
-
     private void GenerateRooms()
     {
         for(int i = 0; i < roomsAmount; i++)

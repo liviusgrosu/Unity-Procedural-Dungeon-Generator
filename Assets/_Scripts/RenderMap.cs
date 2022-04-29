@@ -5,22 +5,22 @@ using UnityEngine;
 
 public class RenderMap : MonoBehaviour 
 {
-    [SerializeField] GameObject floor;
+    [SerializeField] List<GameObject> floors;
+    [SerializeField] List<GameObject> walls;
     [SerializeField] GameObject roof;
-    [SerializeField] GameObject Wall;
     [SerializeField] GameObject torch;
     [SerializeField] Transform objectParent;
     [SerializeField] float objectScale;
     [SerializeField] GameObject Player;
     
     [SerializeField] float torchMaxSpread;
-    private float torchCurSpread;
+    private float torchCurrentSpread;
 
     public void Render()
     {
         RenderTiles();
         
-        Vector3 startingPos = new Vector3(GenerateDungeon.tiles[0].pos.x, 0, GenerateDungeon.tiles[0].pos.y); 
+        Vector3 startingPos = new Vector3(GenerateDungeon.tiles[0].pos.x * objectScale, Player.GetComponent<CharacterController>().height / 2f, GenerateDungeon.tiles[0].pos.y * objectScale); 
         Instantiate(Player, startingPos, Player.transform.rotation);
     }
 
@@ -28,8 +28,9 @@ public class RenderMap : MonoBehaviour
     {
         foreach(Tile tile in GenerateDungeon.tiles)
         {
+            int randomIdx = Random.Range(0, floors.Count);
             Vector3 roomPosition = new Vector3(tile.pos.x, 0f, tile.pos.y);
-            GameObject roomObj = Instantiate(floor, roomPosition, floor.transform.rotation);
+            GameObject roomObj = Instantiate(floors[randomIdx], roomPosition, floors[randomIdx].transform.rotation);
             GameObject roofObj = Instantiate(roof, new Vector3(roomPosition.x, roof.transform.position.y, roomPosition.z), roof.transform.rotation);
             
             roomObj.transform.parent = objectParent;
@@ -65,12 +66,13 @@ public class RenderMap : MonoBehaviour
 
     private void RenderWall(Vector3 pos, float rotationOffset)
     {
-        GameObject wallInstance = Instantiate(Wall, pos, Wall.transform.rotation);
+        int randomIdx = Random.Range(0, walls.Count);
+        GameObject wallInstance = Instantiate(walls[randomIdx], pos, walls[randomIdx].transform.rotation);
         wallInstance.transform.Rotate(0, rotationOffset - 180f, 0);
         wallInstance.transform.parent = objectParent;
 
-        torchCurSpread++;
-        if (torchCurSpread % torchMaxSpread == 0)
+        torchCurrentSpread++;
+        if (torchCurrentSpread % torchMaxSpread == 0)
         {
             RenderTorch(pos, rotationOffset);
         }
