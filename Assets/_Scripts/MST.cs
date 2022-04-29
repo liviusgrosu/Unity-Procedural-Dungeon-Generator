@@ -112,6 +112,7 @@ public class MST
 
     private void AddRandomPaths(float randomHallwayChance)
     {
+        // Add a path from the buffer to the MST
         foreach(Path path in pathsBuffer)
         {
             bool addPath = Random.Range(0.0f, 1.0f) > 1 - randomHallwayChance;
@@ -154,6 +155,7 @@ public class MST
         {            
             Triangulation.Vertex connectingPoint;
 
+            // Check if its a connecting point
             if (edge.u.x == point.vertex.x && edge.u.y == point.vertex.y)
             {
                 connectingPoint = edge.v;
@@ -167,6 +169,7 @@ public class MST
                 continue;
             }
             
+            // Create the new edge with the distance as its cost
             float distanceCost = Vector2.Distance(new Vector2(point.vertex.x, point.vertex.y), new Vector2(connectingPoint.x, connectingPoint.y));
             point.connectingPoints.Add(connectingPoint, distanceCost);
             AddPathToBuffer(point, new Point(connectingPoint));
@@ -175,6 +178,7 @@ public class MST
 
     private Point GetPoint(Triangulation.Vertex vertex, List<Point> pointList)
     {
+        // Check if point exists in the point list
         foreach(Point point in pointList)
         {
             if (point.vertex == vertex)
@@ -187,6 +191,7 @@ public class MST
 
     private void AddPathToBuffer(Point a, Point b)
     {
+        // Add path/edge to the buffer as long as it doesnt already exist
         foreach(Path path in pathsBuffer)
         {
             if (path.a.Equals(a) && path.b.Equals(b) ||
@@ -200,6 +205,7 @@ public class MST
 
     private void RemoveFromPathBuffer(Path pathToRemove)
     {
+        // Remove path/edge from the buffer
         foreach(Path path in pathsBuffer)
         {
             if (path.Equals(pathToRemove))

@@ -60,8 +60,6 @@ public class Triangulation
         finishedTriangulation = new List<Triangle>();
         allEdges = new List<Edge>();
 
-        // TODO: might need to sort the vertices by the X values
-
         // Convert pointList to list of vertices
         foreach(Vector2 point in pointList)
         {
@@ -75,6 +73,7 @@ public class Triangulation
         float minY = pointList[0].y;
         float maxY = pointList[0].y;
 
+        // Find the minimun point
         foreach(Vector2 point in pointList)
         {
             if (point.x < minX)
@@ -95,6 +94,7 @@ public class Triangulation
             }
         }
         
+        // Create the super triangle given its points
         Vertex v0 = new Vertex(minX - 100f, minY - 100f);
         Vertex v1 = new Vertex(maxX + 100f, minY - 100f);
         Vertex v2 = new Vertex(maxX / 2f, maxY + 100f);
@@ -106,13 +106,12 @@ public class Triangulation
         foreach(Vertex vertex in vertices)
         {
             List<Triangle> badTriangles = new List<Triangle>();
+            // If the point exists in the circumcircle of a triangle then the triangle is considered bad
             foreach(Triangle triangle in triangulation)
             {
                 if (IsPointInCirlce(triangle, vertex))
                 {
                     badTriangles.Add(triangle);
-
-                    // Creart List of bad edges
                 }
             }
             List<Edge> polygon = new List<Edge>();
@@ -130,16 +129,19 @@ public class Triangulation
                     // Check if edge is shared by another bad triangle
                     if (!CheckIfEdgeIsShared(edge, badTriangles.Except(new List<Triangle>{triangle}).ToList()))
                     {
+                        // Add that edge to the triangle
                         polygon.Add(edge);
                     }
                 }
             }
 
+            // Remove all bad triangles from the triangulation list
             foreach(Triangle triangle in badTriangles)
             {
                 triangulation.Remove(triangle);
             }
 
+            // Add the new triangle from the polygon to the triangulation list
             foreach(Edge edge in polygon)
             {
                 Triangle newTriangle = new Triangle(edge.u, edge.v, vertex);
@@ -147,6 +149,7 @@ public class Triangulation
             }
         }
 
+        // Add triangle to finished list if it touches the super triangle
         foreach(Triangle triangle in triangulation)
         {
             if (!CheckIfVerticesShared(triangle, superTriangle))
@@ -155,11 +158,13 @@ public class Triangulation
             }
         }
 
+        // Remove any overlapping edges
         RemoveOverlappingEdges();
     }
 
     private bool IsPointInCirlce(Triangle triangle, Vertex vertex)
     {
+        // Check if point lies within the circumcircle of a triangle
         float ax = triangle.a.x - vertex.x;
         float ay = triangle.a.y - vertex.y;
 
@@ -169,6 +174,8 @@ public class Triangulation
         float cx = triangle.c.x - vertex.x;
         float cy = triangle.c.y - vertex.y;
 
+        // Calculate the determinant and check if its greater then 0
+        // If it is then the point lies within the triangles circumcircle
         return  ((ax * ax + ay * ay) * (bx * cy - cx * by) -
                 (bx * bx + by * by) * (ax * cy - cx * ay) +
                 (cx * cx + cy * cy) * (ax * by - bx * ay)) > 0;
@@ -176,6 +183,7 @@ public class Triangulation
 
     private bool CheckIfEdgeIsShared(Edge edge, List<Triangle> triangles)
     {
+        // Check the edge is shared by another triangle
         foreach(Triangle triangle in triangles)
         {
             if (triangle.a == edge.u && triangle.b == edge.v || triangle.a == edge.v && triangle.b == edge.u ||
@@ -190,6 +198,7 @@ public class Triangulation
 
     private bool CheckIfEdgeIsShared(Edge edge)
     {
+        // Check if edge exists in the edge list
         foreach(Edge currEdge in allEdges)
         {
             if ((edge.u.x == currEdge.u.x && edge.u.y == currEdge.u.y &&
@@ -205,6 +214,7 @@ public class Triangulation
 
     private bool CheckIfVerticesShared(Triangle triangleA, Triangle triangleB)
     {
+        // Check if two triangle share a vertex
         return (triangleA.a.Equals(triangleB.a) || triangleA.a.Equals(triangleB.b) || triangleA.a.Equals(triangleB.c) ||
                 triangleA.b.Equals(triangleB.a) || triangleA.b.Equals(triangleB.b) || triangleA.b.Equals(triangleB.c) ||
                 triangleA.c.Equals(triangleB.a) || triangleA.c.Equals(triangleB.b) || triangleA.c.Equals(triangleB.c)
@@ -213,6 +223,7 @@ public class Triangulation
 
     private static Vertex FindCenteroid(Vertex a, Vertex b, Vertex c)
     {
+        // Find the centre of a triangle
         float x = 0;
         float y = 0;
 
@@ -224,6 +235,7 @@ public class Triangulation
 
     public static (Vertex, Vertex, Vertex) SortVertices(Vertex a, Vertex b, Vertex c)
     {
+        // Sort vertices in a clockwise order such that the function IsPointInCirlce works properly
         List<Vertex> newVertices = new List<Vertex> { a, b, c };
         Vertex centre = FindCenteroid(a, b, c);        
 
@@ -250,12 +262,14 @@ public class Triangulation
             vertexAngle.Add(newVertices[i], angleMax);
         }
 
+        // Sort vertices by their angles
         Dictionary<Vertex, int> sortedAngles = vertexAngle.OrderByDescending(x => x.Value).ToDictionary(x => x.Key, x => x.Value);
         return (sortedAngles.ElementAt(0).Key, sortedAngles.ElementAt(1).Key, sortedAngles.ElementAt(2).Key);
     }
 
     private void RemoveOverlappingEdges()
     {
+        // Remove any edges that overlap
         foreach(Triangle triangle in finishedTriangulation)
         {
             Edge ab = new Edge(triangle.a, triangle.b);

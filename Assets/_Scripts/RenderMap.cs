@@ -5,13 +5,13 @@ using UnityEngine;
 
 public class RenderMap : MonoBehaviour 
 {
-    [SerializeField] List<GameObject> floors;
-    [SerializeField] List<GameObject> walls;
-    [SerializeField] GameObject roof;
-    [SerializeField] GameObject torch;
-    [SerializeField] Transform objectParent;
-    [SerializeField] float objectScale;
-    [SerializeField] GameObject Player;
+    [SerializeField] private List<GameObject> floors;
+    [SerializeField] private List<GameObject> walls;
+    [SerializeField] private GameObject roof;
+    [SerializeField] private GameObject torch;
+    [SerializeField] private Transform objectParent;
+    [SerializeField] private float objectScale;
+    [SerializeField] private GameObject Player;
     
     [SerializeField] float torchMaxSpread;
     private float torchCurrentSpread;
@@ -28,6 +28,7 @@ public class RenderMap : MonoBehaviour
     {
         foreach(Tile tile in GenerateDungeon.Tiles)
         {
+            // Get the position of the tile and instantiate the floor and roof
             int randomIdx = Random.Range(0, floors.Count);
             Vector3 roomPosition = new Vector3(tile.pos.x, 0f, tile.pos.y);
             GameObject roomObj = Instantiate(floors[randomIdx], roomPosition, floors[randomIdx].transform.rotation);
@@ -66,11 +67,13 @@ public class RenderMap : MonoBehaviour
 
     private void RenderWall(Vector3 pos, float rotationOffset)
     {
+        // Instantiate the wall object
         int randomIdx = Random.Range(0, walls.Count);
         GameObject wallInstance = Instantiate(walls[randomIdx], pos, walls[randomIdx].transform.rotation);
         wallInstance.transform.Rotate(0, rotationOffset - 180f, 0);
         wallInstance.transform.parent = objectParent;
 
+        // Instantiate a torch if its spread apart enough
         torchCurrentSpread++;
         if (torchCurrentSpread % torchMaxSpread == 0)
         {

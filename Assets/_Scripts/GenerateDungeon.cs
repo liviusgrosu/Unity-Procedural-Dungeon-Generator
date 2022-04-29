@@ -133,6 +133,7 @@ public class GenerateDungeon : MonoBehaviour
                     continue;
                 }
 
+                // Add a hallway node as a tile 
                 Tile tile = new Tile(node.pos, Tile.Type.Hallway);
                 Tiles.Add(tile);
             }
@@ -141,6 +142,7 @@ public class GenerateDungeon : MonoBehaviour
 
     private bool AddRoom(Room newRoom)
     {
+        // Check if the generated room will overlap any other rooms
         foreach(Room currRoom in rooms)
         {
             bool overlap =  newRoom.x <= (currRoom.x + currRoom.width) && (newRoom.x + newRoom.width) >= currRoom.x &&

@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Room
 {
-    // x, y, width, height
     public int x, y;
     public int width, height;
 
